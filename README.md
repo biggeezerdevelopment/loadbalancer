@@ -1,6 +1,6 @@
 # Go Load Balancer
 
-A high-performance, feature-rich load balancer written in Go, supporting multiple load balancing strategies, connection pooling, circuit breakers, caching, comprehensive metrics and management dashboard.
+A high-performance, feature-rich http/https load balancer written in Go, supporting multiple load balancing strategies, connection pooling, circuit breakers, caching, comprehensive metrics and management dashboard.
 
 ## Features
 
