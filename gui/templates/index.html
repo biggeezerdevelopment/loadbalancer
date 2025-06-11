@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Balancer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <h1 class="text-xl font-bold">Load Balancer Dashboard</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <a href="/logout" class="text-gray-600 hover:text-gray-900">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Stats Overview -->
+            <!--
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Total Requests</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900" id="totalRequests">0</dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Active Connections</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900" id="activeConnections">0</dd>
+                    </div>
+                </div>
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Error Rate</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900" id="errorRate">0%</dd>
+                    </div>
+                </div>
+            </div>
+        -->
+            <!-- Configuration Section -->
+            <div class="bg-white shadow rounded-lg mb-8">
+                <div class="px-4 py-5 sm:p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Configuration</h2>
+                    <form id="configForm" class="space-y-6">
+                        <!-- Server Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Server Settings</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Port</label>
+                                    <input type="text" name="server.port" value="{{.Config.Server.Port}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Worker Count</label>
+                                    <input type="number" name="server.worker_count" value="{{.Config.Server.WorkerCount}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TLS Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">TLS</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.tls.enabled" {{if eq .Config.Server.TLS.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Cert File</label>
+                                    <input type="text" name="server.tls.cert_file" value="{{.Config.Server.TLS.CertFile}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Key File</label>
+                                    <input type="text" name="server.tls.key_file" value="{{.Config.Server.TLS.KeyFile}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Min Version</label>
+                                    <input type="text" name="server.tls.min_version" value="{{.Config.Server.TLS.MinVersion}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Client Auth</label>
+                                    <input type="text" name="server.tls.client_auth" value="{{.Config.Server.TLS.ClientAuth}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Load Balancing Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Load Balancing</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Strategy</label>
+                                    <select name="server.load_balancing.strategy" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        <option value="round_robin" {{if eq .Config.Server.LoadBalancing.Strategy "round_robin"}}selected{{end}}>Round Robin</option>
+                                        <option value="weighted_round_robin" {{if eq .Config.Server.LoadBalancing.Strategy "weighted_round_robin"}}selected{{end}}>Weighted Round Robin</option>
+                                        <option value="ip_hash" {{if eq .Config.Server.LoadBalancing.Strategy "ip_hash"}}selected{{end}}>IP Hash</option>
+                                        <option value="least_connections" {{if eq .Config.Server.LoadBalancing.Strategy "least_connections"}}selected{{end}}>Least Connections</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="server.load_balancing.ip_hash.enabled" {{if eq .Config.Server.LoadBalancing.IPHash.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">IP Hash Header</label>
+                                        <input type="text" name="server.load_balancing.ip_hash.header" value="{{.Config.Server.LoadBalancing.IPHash.Header}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">IP Hash Fallback Header</label>
+                                        <input type="text" name="server.load_balancing.ip_hash.fallback_header" value="{{.Config.Server.LoadBalancing.IPHash.FallbackHeader}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.load_balancing.weighted_round_robin.enabled" {{if eq .Config.Server.LoadBalancing.WeightedRoundRobin.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.load_balancing.weighted_round_robin.weight_by_capacity" {{if eq .Config.Server.LoadBalancing.WeightedRoundRobin.WeightByCapacity "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Weight by Capacity</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connection Pool Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Connection Pool</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.connection_pool.enabled" {{if eq .Config.Server.ConnectionPool.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Idle Connections</label>
+                                        <input type="text" name="server.connection_pool.max_idle_conns" value="{{.Config.Server.ConnectionPool.MaxIdleConns}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Idle Connections Per Host</label>
+                                        <input type="text" name="server.connection_pool.max_idle_conns_per_host" value="{{.Config.Server.ConnectionPool.MaxIdleConnsPerHost}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Connections Per Host</label>
+                                        <input type="text" name="server.connection_pool.max_conns_per_host" value="{{.Config.Server.ConnectionPool.MaxConnsPerHost}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Idle Connection Timeout</label>
+                                        <input type="text" name="server.connection_pool.idle_conn_timeout" value="{{.Config.Server.ConnectionPool.IdleConnTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Lifetime</label>
+                                        <input type="text" name="server.connection_pool.max_lifetime" value="{{.Config.Server.ConnectionPool.MaxLifetime}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Keep Alive</label>
+                                        <input type="text" name="server.connection_pool.keep_alive" value="{{.Config.Server.ConnectionPool.KeepAlive}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Dial Timeout</label>
+                                        <input type="text" name="server.connection_pool.dial_timeout" value="{{.Config.Server.ConnectionPool.DialTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">TLS Handshake Timeout</label>
+                                        <input type="text" name="server.connection_pool.tls_handshake_timeout" value="{{.Config.Server.ConnectionPool.TLSHandshakeTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Expect Continue Timeout</label>
+                                        <input type="text" name="server.connection_pool.expect_continue_timeout" value="{{.Config.Server.ConnectionPool.ExpectContinueTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Response Header Timeout</label>
+                                        <input type="text" name="server.connection_pool.response_header_timeout" value="{{.Config.Server.ConnectionPool.ResponseHeaderTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="server.connection_pool.disable_keep_alives" {{if .Config.Server.ConnectionPool.DisableKeepAlives}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <span class="ml-2 text-sm text-gray-700">Disable Keep Alives</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="server.connection_pool.disable_compression" {{if .Config.Server.ConnectionPool.DisableCompression}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <span class="ml-2 text-sm text-gray-700">Disable Compression</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cache Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Cache</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.cache.enabled" {{if eq .Config.Server.Cache.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">TTL</label>
+                                        <input type="text" name="server.cache.ttl" value="{{.Config.Server.Cache.TTL}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Size</label>
+                                        <input type="text" name="server.cache.max_size" value="{{.Config.Server.Cache.MaxSize}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Headers</label>
+                                    <input type="text" name="server.cache.headers" value="{{range .Config.Server.Cache.Headers}}{{.}},{{end}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Exclude Paths</label>
+                                    <input type="text" name="server.cache.exclude_paths" value="{{range .Config.Server.Cache.ExcludePaths}}{{.}},{{end}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Circuit Breaker Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Circuit Breaker</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="server.circuit_breaker.enabled" {{if eq .Config.Server.CircuitBreaker.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Failure Threshold</label>
+                                        <input type="text" name="server.circuit_breaker.failure_threshold" value="{{.Config.Server.CircuitBreaker.FailureThreshold}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Success Threshold</label>
+                                        <input type="text" name="server.circuit_breaker.success_threshold" value="{{.Config.Server.CircuitBreaker.SuccessThreshold}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Reset Timeout</label>
+                                        <input type="text" name="server.circuit_breaker.reset_timeout" value="{{.Config.Server.CircuitBreaker.ResetTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Half Open Timeout</label>
+                                        <input type="text" name="server.circuit_breaker.half_open_timeout" value="{{.Config.Server.CircuitBreaker.HalfOpenTimeout}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Metrics</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="metrics.enabled" {{if eq .Config.Metrics.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Port</label>
+                                        <input type="text" name="metrics.port" value="{{.Config.Metrics.Port}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Path</label>
+                                        <input type="text" name="metrics.path" value="{{.Config.Metrics.Path}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Collect Interval</label>
+                                        <input type="text" name="metrics.collect_interval" value="{{.Config.Metrics.CollectInterval}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Retention Period</label>
+                                        <input type="text" name="metrics.retention_period" value="{{.Config.Metrics.RetentionPeriod}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900 mb-2">Prometheus</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="metrics.prometheus.enabled" {{if eq .Config.Metrics.Prometheus.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Namespace</label>
+                                            <input type="text" name="metrics.prometheus.namespace" value="{{.Config.Metrics.Prometheus.Namespace}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Subsystem</label>
+                                            <input type="text" name="metrics.prometheus.subsystem" value="{{.Config.Metrics.Prometheus.Subsystem}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Path</label>
+                                            <input type="text" name="metrics.prometheus.path" value="{{.Config.Metrics.Prometheus.Path}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Logging Configuration -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Logging</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="logging.enabled" {{if eq .Config.Logging.Enabled "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-700">Enabled</span>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Level</label>
+                                        <select name="logging.level" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option value="debug" {{if eq .Config.Logging.Level "debug"}}selected{{end}}>Debug</option>
+                                            <option value="info" {{if eq .Config.Logging.Level "info"}}selected{{end}}>Info</option>
+                                            <option value="warn" {{if eq .Config.Logging.Level "warn"}}selected{{end}}>Warn</option>
+                                            <option value="error" {{if eq .Config.Logging.Level "error"}}selected{{end}}>Error</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">File</label>
+                                        <input type="text" name="logging.file" value="{{.Config.Logging.File}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Size</label>
+                                        <input type="text" name="logging.max_size" value="{{.Config.Logging.MaxSize}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Backups</label>
+                                        <input type="text" name="logging.max_backups" value="{{.Config.Logging.MaxBackups}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Age</label>
+                                        <input type="text" name="logging.max_age" value="{{.Config.Logging.MaxAge}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="logging.compress" {{if eq .Config.Logging.Compress "true"}}checked{{end}} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <span class="ml-2 text-sm text-gray-700">Compress</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Format</label>
+                                        <select name="logging.format" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                            <option value="text" {{if eq .Config.Logging.Format "text"}}selected{{end}}>Text</option>
+                                            <option value="json" {{if eq .Config.Logging.Format "json"}}selected{{end}}>JSON</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backends Section -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Backends</h3>
+                            <div class="space-y-4">
+                                {{range .Config.Backends}}
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">URL</label>
+                                        <input type="text" name="backends[].url" value="{{.URL}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Weight</label>
+                                        <input type="text" name="backends[].weight" value="{{.Weight}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Max Connections</label>
+                                        <input type="text" name="backends[].max_connections" value="{{.MaxConnections}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                {{end}}
+
+                                <!-- Add New Backend Form -->
+                                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-4">Add New Backend</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">URL</label>
+                                            <input type="text" id="new-backend-url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="http://backend:8080">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Weight</label>
+                                            <input type="text" id="new-backend-weight" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="1">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Max Connections</label>
+                                            <input type="text" id="new-backend-max-connections" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="100">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <button type="button" onclick="addBackend()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            Add Backend
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                Save Configuration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Fetch and update metrics
+        function updateMetrics() {
+            fetch('/api/metrics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalRequests').textContent = data.total_requests;
+                    document.getElementById('activeConnections').textContent = data.active_connections;
+                    const errorRate = data.total_requests > 0 ? (data.error_count / data.total_requests * 100).toFixed(2) : 0;
+                    document.getElementById('errorRate').textContent = errorRate + '%';
+                })
+                .catch(error => console.error('Error fetching metrics:', error));
+        }
+
+        // Update metrics every 5 seconds
+        setInterval(updateMetrics, 5000);
+        updateMetrics();
+
+        // Handle form submission
+        document.getElementById('configForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const config = {};
+            
+            // Convert form data to nested object
+            for (let [key, value] of formData.entries()) {
+                const keys = key.split('.');
+                let current = config;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    if (!current[keys[i]]) {
+                        current[keys[i]] = {};
+                    }
+                    current = current[keys[i]];
+                }
+                current[keys[keys.length - 1]] = value;
+            }
+
+            // Send configuration update
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Configuration updated successfully');
+                } else {
+                    throw new Error('Failed to update configuration');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update configuration');
+            });
+        });
+
+        function addBackend() {
+            const url = document.getElementById('new-backend-url').value;
+            const weight = document.getElementById('new-backend-weight').value;
+            const maxConnections = document.getElementById('new-backend-max-connections').value;
+
+            if (!url) {
+                alert('URL is required');
+                return;
+            }
+
+            fetch('/api/backends', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: url,
+                    weight: weight || '1',
+                    max_connections: maxConnections || '100'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add backend');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                alert('Error adding backend: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

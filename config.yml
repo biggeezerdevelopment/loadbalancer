@@ -1,0 +1,94 @@
+server:
+    port: :8080
+    worker_count: "100"
+    tls:
+        enabled: ""
+        cert_file: ""
+        key_file: ""
+        min_version: ""
+        cipher_suites: []
+        client_auth: ""
+    load_balancing:
+        strategy: least_connections
+        ip_hash:
+            enabled: "true"
+            header: X-Forwarded-For
+            fallback_header: X-Real-IP
+        weighted_round_robin:
+            enabled: "true"
+            weight_by_capacity: "true"
+    connection_pool:
+        enabled: "true"
+        max_idle_conns: "100"
+        max_idle_conns_per_host: "10"
+        max_conns_per_host: "100"
+        idle_conn_timeout: 90s
+        max_lifetime: 1h
+        keep_alive: 30s
+        dial_timeout: 5s
+        tls_handshake_timeout: 10s
+        expect_continue_timeout: 1s
+        response_header_timeout: 10s
+        disable_keep_alives: false
+        disable_compression: false
+    cache:
+        enabled: "true"
+        ttl: 5m
+        max_size: "1000"
+        headers:
+            - Accept
+            - Accept-Language
+        exclude_paths:
+            - /api/dynamic
+            - /admin
+    circuit_breaker:
+        enabled: "true"
+        failure_threshold: "5"
+        success_threshold: "2"
+        reset_timeout: 30s
+        half_open_timeout: 5s
+metrics:
+    enabled: "true"
+    port: :9091
+    path: /api/metrics
+    auth:
+        enabled: false
+        bearer_token: ""
+    collect_interval: 15s
+    retention_period: 24h
+    labels:
+        environment: production
+        region: us-east-1
+    prometheus:
+        enabled: "true"
+        namespace: loadbalancer
+        subsystem: http
+        path: /metrics
+backends:
+    - url: http://localhost:8082
+      weight: "5"
+      max_connections: "50"
+      healthy: false
+    - url: http://localhost:8083
+      weight: "29"
+      max_connections: "20"
+      healthy: false
+    - url: http://localhost:8084
+      weight: "10"
+      max_connections: "12"
+      healthy: true
+logging:
+    enabled: "true"
+    level: info
+    file: logs/loadbalancer.log
+    max_size: "100"
+    max_backups: "3"
+    max_age: "28"
+    compress: "true"
+    format: json
+dashboard:
+    auth:
+        enabled: "true"
+        username: admin
+        password: admin123
+        session_timeout: 24h
