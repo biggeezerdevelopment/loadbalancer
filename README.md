@@ -99,7 +99,6 @@ A high-performance, feature-rich load balancer written in Go, supporting multipl
 2. Access the management interface:
    - Open your browser and navigate to `http://localhost:8081`
    - The interface provides:
-     - Real-time metrics visualization
      - Backend server management
      - Load balancing strategy configuration
      - Worker pool settings
@@ -122,12 +121,6 @@ A high-performance, feature-rich load balancer written in Go, supporting multipl
 ## Management Interface
 
 The web-based management interface provides a user-friendly way to monitor and configure the load balancer:
-
-### Dashboard
-- Real-time metrics visualization
-- Request rate charts
-- Error rate monitoring
-- Active connections tracking
 
 ### Configuration
 - Load balancing strategy selection

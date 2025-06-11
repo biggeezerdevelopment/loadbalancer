@@ -3265,3 +3265,105 @@
 {"timestamp":"2025-06-10T20:38:05-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
 {"timestamp":"2025-06-10T20:38:05-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
 {"timestamp":"2025-06-10T20:38:07-05:00","level":"info","message":"Stopping load balancer"}
+{"timestamp":"2025-06-10T20:45:10-05:00","level":"info","message":"Load balancer initialized","data":{"backends":3,"pool_enabled":true,"worker_count":100}}
+{"timestamp":"2025-06-10T20:45:10-05:00","level":"info","message":"Starting metrics server","data":{"paths":["/api/metrics","/metrics"],"port":":9091"}}
+{"timestamp":"2025-06-10T20:45:10-05:00","level":"info","message":"Starting load balancer","data":{"port":":8080","protocol":"https","tls":""}}
+{"timestamp":"2025-06-10T20:45:13-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63979","request_id":"1749606313617026600"}}
+{"timestamp":"2025-06-10T20:45:13-05:00","level":"info","message":"Request completed","data":{"backend":"localhost:8082","duration":"7.1111ms","request_id":"1749606313617026600","status":200}}
+{"timestamp":"2025-06-10T20:45:13-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/favicon.ico","remote":"[::1]:63979","request_id":"1749606313641899500"}}
+{"timestamp":"2025-06-10T20:45:13-05:00","level":"info","message":"Request completed","data":{"backend":"localhost:8082","duration":"505.8µs","request_id":"1749606313641899500","status":204}}
+{"timestamp":"2025-06-10T20:45:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:45:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:45:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:45:30-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606330207884700"}}
+{"timestamp":"2025-06-10T20:45:30-05:00","level":"info","message":"Request completed","data":{"backend":"localhost:8082","duration":"578.3µs","request_id":"1749606330207884700","status":200}}
+{"timestamp":"2025-06-10T20:45:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:45:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:45:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:45:35-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606335214665700"}}
+{"timestamp":"2025-06-10T20:45:40-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606340204294900"}}
+{"timestamp":"2025-06-10T20:45:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:45:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:45:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:45:45-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606345200191400"}}
+{"timestamp":"2025-06-10T20:45:50-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606350200992700"}}
+{"timestamp":"2025-06-10T20:45:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:45:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:45:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:45:55-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606355199598500"}}
+{"timestamp":"2025-06-10T20:46:00-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606360214681500"}}
+{"timestamp":"2025-06-10T20:46:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:46:05-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606365210465400"}}
+{"timestamp":"2025-06-10T20:46:10-05:00","level":"info","message":"Incoming request","data":{"method":"GET","path":"/metrics","remote":"[::1]:63987","request_id":"1749606370203985300"}}
+{"timestamp":"2025-06-10T20:46:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:46:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:46:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:46:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:46:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:46:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:46:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:47:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:47:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:47:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:48:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:48:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:48:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:00-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:10-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:20-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:30-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:40-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8082","status":200}}
+{"timestamp":"2025-06-10T20:49:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8083","status":200}}
+{"timestamp":"2025-06-10T20:49:50-05:00","level":"info","message":"Backend health check passed via /health endpoint","data":{"backend":"localhost:8084","status":200}}
+{"timestamp":"2025-06-10T20:49:52-05:00","level":"info","message":"Stopping load balancer"}
