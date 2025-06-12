@@ -1,6 +1,6 @@
 # QuantumFlow Load Balancer
 
-<img src="quantumflow.png" alt="QuantumFlow Logo" height="200"/>
+<img src="quantomflow.png" alt="QuantumFlow Logo" height="200"/>
 
 A high-performance, feature-rich http/https load balancer written in Go, supporting multiple load balancing strategies, connection pooling, circuit breakers, caching, comprehensive metrics and management dashboard.
 
