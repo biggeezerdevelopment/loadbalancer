@@ -116,6 +116,4 @@ INSERT OR IGNORE INTO cache_config (id, enabled, ttl, max_size, headers, methods
 INSERT OR IGNORE INTO circuit_breaker_config (id, enabled) VALUES (1, 'false');
 INSERT OR IGNORE INTO metrics_config (id, enabled) VALUES (1, 'false');
 INSERT OR IGNORE INTO logging_config (id, enabled) VALUES (1, 'false');
-
--- Insert default server config
-INSERT OR IGNORE INTO server_config (id, port, worker_count) VALUES (1, '8080', '4'); 
+INSERT OR IGNORE INTO server_config (id, port, worker_count) VALUES (1, '8080', '100'); 

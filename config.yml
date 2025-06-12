@@ -64,19 +64,7 @@ metrics:
         namespace: loadbalancer
         subsystem: http
         path: /metrics
-backends:
-    - url: http://localhost:8083
-      weight: "29"
-      max_connections: "20"
-      healthy: false
-    - url: http://localhost:8084
-      weight: "10"
-      max_connections: "100"
-      healthy: true
-    - url: http://localhost:8082
-      weight: "10"
-      max_connections: "100"
-      healthy: true
+backends: []
 logging:
     enabled: "true"
     level: info

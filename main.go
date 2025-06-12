@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	// Initialize database
-	if err := database.InitDB("data/config.db"); err != nil {
+	if err := database.InitDB("config.db"); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
