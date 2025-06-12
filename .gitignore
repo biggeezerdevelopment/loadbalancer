@@ -37,4 +37,7 @@ Thumbs.db
 
 # Binary files
 bin/
-dist/ 
+dist/
+cmd/
+internal/testbackend
+

@@ -74,7 +74,7 @@ backends:
       max_connections: "100"
       healthy: true
     - url: http://localhost:8082
-      weight: "100"
+      weight: "10"
       max_connections: "100"
       healthy: true
 logging:
