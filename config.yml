@@ -65,17 +65,17 @@ metrics:
         subsystem: http
         path: /metrics
 backends:
-    - url: http://localhost:8082
-      weight: "5"
-      max_connections: "50"
-      healthy: false
     - url: http://localhost:8083
       weight: "29"
       max_connections: "20"
       healthy: false
     - url: http://localhost:8084
       weight: "10"
-      max_connections: "12"
+      max_connections: "100"
+      healthy: true
+    - url: http://localhost:8082
+      weight: "100"
+      max_connections: "100"
       healthy: true
 logging:
     enabled: "true"
@@ -87,8 +87,9 @@ logging:
     compress: "true"
     format: json
 dashboard:
+    port: 8081
     auth:
         enabled: "true"
         username: admin
-        password: admin123
+        password: admin
         session_timeout: 24h

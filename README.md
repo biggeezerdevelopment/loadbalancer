@@ -1,4 +1,6 @@
-# Go Load Balancer
+# QuantumFlow Load Balancer
+
+![QuantumFlow Logo](quantumflow.png)
 
 A high-performance, feature-rich http/https load balancer written in Go, supporting multiple load balancing strategies, connection pooling, circuit breakers, caching, comprehensive metrics and management dashboard.
 

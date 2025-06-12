@@ -1,77 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Load Balancer Dashboard - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>QuantumFlow - Login</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <style type="text/tailwindcss">
         body {
-            background-color: #f8f9fa;
-            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #D1D5DB;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .login-container {
-            max-width: 400px;
-            width: 100%;
+        .login-card {
+            background-color: #1F2937;
+            border-radius: 0.5rem;
             padding: 2rem;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .login-header h1 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .login-header p {
-            color: #666;
-            margin: 0;
-        }
-        .form-control {
-            padding: 0.75rem;
-            border-radius: 5px;
-        }
-        .btn-login {
             width: 100%;
-            padding: 0.75rem;
-            font-weight: 500;
-            background-color: #0d6efd;
-            border: none;
-            border-radius: 5px;
+            max-width: 400px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .btn-login:hover {
-            background-color: #0b5ed7;
-        }
-        .alert {
+        .input-field {
+            background-color: #374151;
+            border: 1px solid #4B5563;
+            color: #D1D5DB;
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            box-sizing: border-box;
             margin-bottom: 1rem;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 2px #1E40AF;
+        }
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .button-primary {
+            background-color: #3B82F6;
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #2563EB;
+        }
+        .error-message {
+            color: #EF4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .material-icons {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+        .material-icons.text-4xl {
+            font-size: 48px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>Load Balancer Dashboard</h1>
-            <p>Please sign in to continue</p>
+    <div class="login-card">
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center mb-4">
+                <span class="material-icons text-4xl text-blue-400">cloud_sync</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-2">QuantumFlow</h1>
+            <p class="text-gray-400">Load Balancer Dashboard</p>
         </div>
-        <form method="POST" action="/login">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required autofocus>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="input-field" 
+                    placeholder="Enter your username"
+                    required
+                />
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+
+            <div class="mb-6">
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="input-field" 
+                    placeholder="Enter your password"
+                    required
+                />
             </div>
-            <button type="submit" class="btn btn-primary btn-login">Sign In</button>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <button type="submit" class="button button-primary">
+                <span class="material-icons">login</span>
+                Sign In
+            </button>
         </form>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Clear any previous error messages
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Invalid credentials');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Store the token if provided
+                if (data.token) {
+                    localStorage.setItem('auth_token', data.token);
+                }
+                // Redirect to dashboard
+                window.location.href = '/';
+            })
+            .catch(error => {
+                errorMessage.textContent = error.message || 'Login failed. Please try again.';
+                errorMessage.style.display = 'block';
+            });
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                // Verify token validity
+                fetch('/api/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        localStorage.removeItem('auth_token');
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem('auth_token');
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
