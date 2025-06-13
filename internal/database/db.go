@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
+	"gopkg.in/yaml.v3"
 	_ "modernc.org/sqlite"
 )
 
@@ -66,59 +66,57 @@ type LoadBalancingConfig struct {
 
 // ConnectionPoolConfig represents the connection pool configuration
 type ConnectionPoolConfig struct {
-	Enabled               string
-	MaxIdleConns          string
-	MaxIdleConnsPerHost   string
-	MaxConnsPerHost       string
-	IdleConnTimeout       string
-	MaxLifetime           string
-	KeepAlive             string
-	DialTimeout           string
-	TLSHandshakeTimeout   string
-	ExpectContinueTimeout string
-	ResponseHeaderTimeout string
-	DisableKeepAlives     int
-	DisableCompression    int
+	Enabled               string `yaml:"enabled"`
+	MaxIdleConns          string `yaml:"max_idle_conns"`
+	MaxIdleConnsPerHost   string `yaml:"max_idle_conns_per_host"`
+	MaxConnsPerHost       string `yaml:"max_conns_per_host"`
+	IdleConnTimeout       string `yaml:"idle_conn_timeout"`
+	MaxLifetime           string `yaml:"max_lifetime"`
+	KeepAlive             string `yaml:"keep_alive"`
+	DialTimeout           string `yaml:"dial_timeout"`
+	TLSHandshakeTimeout   string `yaml:"tls_handshake_timeout"`
+	ExpectContinueTimeout string `yaml:"expect_continue_timeout"`
+	ResponseHeaderTimeout string `yaml:"response_header_timeout"`
+	DisableKeepAlives     int    `yaml:"disable_keep_alives"`
+	DisableCompression    int    `yaml:"disable_compression"`
 }
 
 // CacheConfig represents the cache configuration
 type CacheConfig struct {
-	Enabled      string   `json:"enabled"`
-	TTL          int      `json:"ttl"`
-	MaxSize      int      `json:"max_size"`
-	Headers      []string `json:"headers"`
-	Methods      []string `json:"methods"`
-	StatusCodes  []int    `json:"status_codes"`
-	ExcludePaths []string `json:"exclude_paths"`
+	Enabled      string   `yaml:"enabled"`
+	TTL          string   `yaml:"ttl"`
+	MaxSize      string   `yaml:"max_size"`
+	Headers      []string `yaml:"headers"`
+	Methods      []string `yaml:"methods"`
+	StatusCodes  []int    `yaml:"status_codes"`
+	ExcludePaths []string `yaml:"exclude_paths"`
 }
 
 // CircuitBreakerConfig represents the circuit breaker configuration
 type CircuitBreakerConfig struct {
-	Enabled          string
-	FailureThreshold string
-	SuccessThreshold string
-	ResetTimeout     string
-	HalfOpenTimeout  string
-}
-
-type PrometheusConfig struct {
-	Enabled   string `json:"enabled"`
-	Namespace string `json:"namespace"`
-	Subsystem string `json:"subsystem"`
-	Path      string `json:"path"`
+	Enabled          string `yaml:"enabled"`
+	FailureThreshold string `yaml:"failure_threshold"`
+	SuccessThreshold string `yaml:"success_threshold"`
+	ResetTimeout     string `yaml:"reset_timeout"`
+	HalfOpenTimeout  string `yaml:"half_open_timeout"`
 }
 
 // MetricsConfig represents the metrics configuration
 type MetricsConfig struct {
-	Enabled         string            `json:"enabled"`
-	Port            string            `json:"port"`
-	Path            string            `json:"path"`
-	AuthEnabled     bool              `json:"auth_enabled"`
-	BearerToken     string            `json:"bearer_token"`
-	CollectInterval string            `json:"collect_interval"`
-	RetentionPeriod string            `json:"retention_period"`
-	Labels          map[string]string `json:"labels"`
-	Prometheus      PrometheusConfig  `json:"prometheus"`
+	Enabled         string            `json:"enabled" yaml:"enabled"`
+	Port            string            `json:"port" yaml:"port"`
+	Path            string            `json:"path" yaml:"path"`
+	AuthEnabled     bool              `json:"auth_enabled" yaml:"auth_enabled"`
+	BearerToken     string            `json:"bearer_token" yaml:"bearer_token"`
+	CollectInterval string            `json:"collect_interval" yaml:"collect_interval"`
+	RetentionPeriod string            `json:"retention_period" yaml:"retention_period"`
+	Labels          map[string]string `json:"labels" yaml:"labels"`
+	Prometheus      struct {
+		Enabled   string `json:"enabled" yaml:"enabled"`
+		Namespace string `json:"namespace" yaml:"namespace"`
+		Subsystem string `json:"subsystem" yaml:"subsystem"`
+		Path      string `json:"path" yaml:"path"`
+	} `json:"prometheus" yaml:"prometheus"`
 }
 
 // LoggingConfig represents the logging configuration
@@ -143,18 +141,15 @@ type Backend struct {
 
 var db *sql.DB
 
-// InitDB initializes the SQLite database
+// InitDB initializes the database
 func InitDB(dbPath string) error {
-	log.Printf("Initializing database at %s", dbPath)
+	var err error
 
-	// Ensure directory exists
-	dir := filepath.Dir(dbPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("failed to create database directory: %v", err)
-	}
+	// Check if database file exists
+	_, err = os.Stat(dbPath)
+	dbExists := err == nil
 
 	// Open database
-	var err error
 	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		return fmt.Errorf("failed to open database: %v", err)
@@ -165,22 +160,142 @@ func InitDB(dbPath string) error {
 		return fmt.Errorf("failed to ping database: %v", err)
 	}
 
-	// Read and execute schema
-	schema, err := os.ReadFile("internal/database/schema.sql")
-	if err != nil {
-		return fmt.Errorf("failed to read schema: %v", err)
-	}
+	// If database doesn't exist, create schema
+	if !dbExists {
+		// Create tables
+		_, err = db.Exec(`
+			CREATE TABLE IF NOT EXISTS server_config (
+				id INTEGER PRIMARY KEY,
+				port TEXT,
+				worker_count TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
 
-	log.Printf("Executing database schema...")
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		return fmt.Errorf("failed to execute schema: %v", err)
-	}
-	log.Printf("Database schema executed successfully")
+			CREATE TABLE IF NOT EXISTS tls_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				cert_file TEXT,
+				key_file TEXT,
+				min_version TEXT,
+				cipher_suites TEXT,
+				client_auth TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
 
-	// Migrate NULLs to empty strings
-	if err := MigrateNulls(db); err != nil {
-		return fmt.Errorf("failed to migrate nulls: %v", err)
+			CREATE TABLE IF NOT EXISTS load_balancing_config (
+				id INTEGER PRIMARY KEY,
+				strategy TEXT,
+				ip_hash_enabled TEXT,
+				ip_hash_header TEXT,
+				ip_hash_fallback_header TEXT,
+				weighted_round_robin_enabled TEXT,
+				weighted_round_robin_weight_by_capacity TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS connection_pool_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				max_idle_conns TEXT,
+				max_idle_conns_per_host TEXT,
+				max_conns_per_host TEXT,
+				idle_conn_timeout TEXT,
+				max_lifetime TEXT,
+				keep_alive TEXT,
+				dial_timeout TEXT,
+				tls_handshake_timeout TEXT,
+				expect_continue_timeout TEXT,
+				response_header_timeout TEXT,
+				disable_keep_alives INTEGER,
+				disable_compression INTEGER,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS cache_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				ttl TEXT,
+				max_size TEXT,
+				headers TEXT,
+				methods TEXT,
+				status_codes TEXT,
+				exclude_paths TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS circuit_breaker_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				failure_threshold TEXT,
+				success_threshold TEXT,
+				reset_timeout TEXT,
+				half_open_timeout TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS metrics_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				port TEXT,
+				path TEXT,
+				auth_enabled INTEGER,
+				bearer_token TEXT,
+				collect_interval TEXT,
+				retention_period TEXT,
+				labels TEXT,
+				prometheus_enabled TEXT,
+				prometheus_namespace TEXT,
+				prometheus_subsystem TEXT,
+				prometheus_path TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS backends (
+				id INTEGER PRIMARY KEY,
+				url TEXT UNIQUE,
+				weight TEXT,
+				max_connections TEXT,
+				healthy INTEGER,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			CREATE TABLE IF NOT EXISTS logging_config (
+				id INTEGER PRIMARY KEY,
+				enabled TEXT,
+				level TEXT,
+				file TEXT,
+				max_size TEXT,
+				max_backups TEXT,
+				max_age TEXT,
+				compress TEXT,
+				format TEXT,
+				updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+
+			-- Insert default values
+			INSERT INTO server_config (id, port, worker_count) VALUES (1, '8080', '4');
+			INSERT INTO tls_config (id, enabled, cert_file, key_file, min_version, cipher_suites, client_auth) 
+				VALUES (1, 'false', '', '', 'TLS1.2', '[]', 'none');
+			INSERT INTO load_balancing_config (id, strategy, ip_hash_enabled, ip_hash_header, ip_hash_fallback_header, 
+				weighted_round_robin_enabled, weighted_round_robin_weight_by_capacity) 
+				VALUES (1, 'round_robin', 'false', 'X-Forwarded-For', 'X-Real-IP', 'false', 'false');
+			INSERT INTO connection_pool_config (id, enabled, max_idle_conns, max_idle_conns_per_host, max_conns_per_host, 
+				idle_conn_timeout, max_lifetime, keep_alive, dial_timeout, tls_handshake_timeout, 
+				expect_continue_timeout, response_header_timeout, disable_keep_alives, disable_compression) 
+				VALUES (1, 'true', '100', '10', '100', '90s', '0s', '30s', '30s', '10s', '1s', '0s', 0, 0);
+			INSERT INTO cache_config (id, enabled, ttl, max_size, headers, methods, status_codes, exclude_paths) 
+				VALUES (1, 'false', '5m', '100MB', '[]', '[]', '[]', '[]');
+			INSERT INTO circuit_breaker_config (id, enabled, failure_threshold, success_threshold, reset_timeout, half_open_timeout) 
+				VALUES (1, 'false', '5', '2', '30s', '5s');
+			INSERT INTO metrics_config (id, enabled, port, path, auth_enabled, bearer_token, collect_interval, 
+				retention_period, labels, prometheus_enabled, prometheus_namespace, prometheus_subsystem, prometheus_path) 
+				VALUES (1, 'false', '9090', '/metrics', 0, '', '15s', '24h', '{}', 'false', 'loadbalancer', 'server', '/metrics');
+			INSERT INTO logging_config (id, enabled, level, file, max_size, max_backups, max_age, compress, format) 
+				VALUES (1, 'true', 'info', 'loadbalancer.log', '100MB', '3', '7d', 'true', 'json');
+		`)
+		if err != nil {
+			return fmt.Errorf("failed to create tables: %v", err)
+		}
 	}
 
 	return nil
@@ -221,11 +336,17 @@ func GetTLSConfig() (map[string]interface{}, error) {
 
 // UpdateTLSConfig updates the TLS configuration
 func UpdateTLSConfig(config TLSConfig) error {
-	_, err := db.Exec(`
+	// Convert CipherSuites to JSON string
+	cipherSuitesJSON, err := json.Marshal(config.CipherSuites)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cipher suites: %v", err)
+	}
+
+	_, err = db.Exec(`
 		UPDATE tls_config 
 		SET enabled = ?, cert_file = ?, key_file = ?, min_version = ?, cipher_suites = ?, client_auth = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = 1`,
-		config.Enabled, config.CertFile, config.KeyFile, config.MinVersion, config.CipherSuites, config.ClientAuth)
+		config.Enabled, config.CertFile, config.KeyFile, config.MinVersion, string(cipherSuitesJSON), config.ClientAuth)
 	return err
 }
 
@@ -360,14 +481,26 @@ func GetMetricsConfig() (map[string]interface{}, error) {
 
 // UpdateMetricsConfig updates the metrics configuration
 func UpdateMetricsConfig(config MetricsConfig) error {
-	_, err := db.Exec(`
+	// Convert Labels map to JSON string
+	labelsJSON, err := json.Marshal(config.Labels)
+	if err != nil {
+		return fmt.Errorf("failed to marshal labels: %v", err)
+	}
+
+	// Convert auth_enabled to int
+	authEnabled := 0
+	if config.AuthEnabled {
+		authEnabled = 1
+	}
+
+	_, err = db.Exec(`
 		UPDATE metrics_config 
 		SET enabled = ?, port = ?, path = ?, auth_enabled = ?, bearer_token = ?,
 			collect_interval = ?, retention_period = ?, labels = ?, prometheus_enabled = ?,
 			prometheus_namespace = ?, prometheus_subsystem = ?, prometheus_path = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = 1`,
-		config.Enabled, config.Port, config.Path, config.AuthEnabled, config.BearerToken,
-		config.CollectInterval, config.RetentionPeriod, config.Labels, config.Prometheus.Enabled,
+		config.Enabled, config.Port, config.Path, authEnabled, config.BearerToken,
+		config.CollectInterval, config.RetentionPeriod, string(labelsJSON), config.Prometheus.Enabled,
 		config.Prometheus.Namespace, config.Prometheus.Subsystem, config.Prometheus.Path)
 	return err
 }
@@ -599,7 +732,11 @@ func GetFullConfig() (*Config, error) {
 	// Get metrics config
 	var metricsConfig MetricsConfig
 	var labelsStr string
-	err = db.QueryRow("SELECT enabled, port, path, auth_enabled, bearer_token, collect_interval, retention_period, labels, prometheus_enabled, prometheus_namespace, prometheus_subsystem, prometheus_path FROM metrics_config WHERE id = 1").Scan(
+	err = db.QueryRow(`
+		SELECT enabled, port, path, auth_enabled, bearer_token, 
+		       collect_interval, retention_period, labels, 
+		       prometheus_enabled, prometheus_namespace, prometheus_subsystem, prometheus_path 
+		FROM metrics_config WHERE id = 1`).Scan(
 		&metricsConfig.Enabled,
 		&metricsConfig.Port,
 		&metricsConfig.Path,
@@ -617,12 +754,49 @@ func GetFullConfig() (*Config, error) {
 		log.Printf("Error getting metrics config: %v", err)
 		return nil, fmt.Errorf("failed to get metrics config: %v", err)
 	}
-	if labelsStr != "" {
+
+	// Debug logging
+	log.Printf("Raw metrics config from database: %+v", metricsConfig)
+
+	// Initialize labels map if empty
+	if labelsStr == "" {
+		metricsConfig.Labels = make(map[string]string)
+	} else {
 		if err := json.Unmarshal([]byte(labelsStr), &metricsConfig.Labels); err != nil {
 			log.Printf("Error unmarshaling labels: %v", err)
 			return nil, fmt.Errorf("failed to unmarshal labels: %v", err)
 		}
 	}
+
+	// Set default values only if fields are empty
+	if metricsConfig.Port == "" {
+		metricsConfig.Port = "9090"
+	}
+	if metricsConfig.Path == "" {
+		metricsConfig.Path = "/metrics"
+	}
+	if metricsConfig.CollectInterval == "" {
+		metricsConfig.CollectInterval = "15s"
+	}
+	if metricsConfig.RetentionPeriod == "" {
+		metricsConfig.RetentionPeriod = "24h"
+	}
+	if metricsConfig.Prometheus.Enabled == "" {
+		metricsConfig.Prometheus.Enabled = "false"
+	}
+	if metricsConfig.Prometheus.Namespace == "" {
+		metricsConfig.Prometheus.Namespace = "loadbalancer"
+	}
+	if metricsConfig.Prometheus.Subsystem == "" {
+		metricsConfig.Prometheus.Subsystem = "server"
+	}
+	if metricsConfig.Prometheus.Path == "" {
+		metricsConfig.Prometheus.Path = "/metrics"
+	}
+
+	// Debug logging
+	log.Printf("Final metrics config: %+v", metricsConfig)
+
 	config.Metrics = metricsConfig
 
 	// Get logging config
@@ -732,7 +906,7 @@ func UpdateConnectionPoolConfig(config ConnectionPoolConfig) error {
 		UPDATE connection_pool_config 
 		SET enabled = ?, max_idle_conns = ?, max_idle_conns_per_host = ?, max_conns_per_host = ?,
 			idle_conn_timeout = ?, max_lifetime = ?, keep_alive = ?, dial_timeout = ?,
-			ts_handshake_timeout = ?, expect_continue_timeout = ?, response_header_timeout = ?,
+			tls_handshake_timeout = ?, expect_continue_timeout = ?, response_header_timeout = ?,
 			disable_keep_alives = ?, disable_compression = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = 1`,
 		config.Enabled, config.MaxIdleConns, config.MaxIdleConnsPerHost, config.MaxConnsPerHost,
@@ -744,11 +918,32 @@ func UpdateConnectionPoolConfig(config ConnectionPoolConfig) error {
 
 // UpdateCacheConfig updates the cache configuration
 func UpdateCacheConfig(config CacheConfig) error {
-	_, err := db.Exec(`
+	// Convert arrays to JSON strings
+	headersJSON, err := json.Marshal(config.Headers)
+	if err != nil {
+		return fmt.Errorf("failed to marshal headers: %v", err)
+	}
+
+	methodsJSON, err := json.Marshal(config.Methods)
+	if err != nil {
+		return fmt.Errorf("failed to marshal methods: %v", err)
+	}
+
+	statusCodesJSON, err := json.Marshal(config.StatusCodes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal status codes: %v", err)
+	}
+
+	excludePathsJSON, err := json.Marshal(config.ExcludePaths)
+	if err != nil {
+		return fmt.Errorf("failed to marshal exclude paths: %v", err)
+	}
+
+	_, err = db.Exec(`
 		UPDATE cache_config 
 		SET enabled = ?, ttl = ?, max_size = ?, headers = ?, methods = ?, status_codes = ?, exclude_paths = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = 1`,
-		config.Enabled, config.TTL, config.MaxSize, config.Headers, config.Methods, config.StatusCodes, config.ExcludePaths)
+		config.Enabled, config.TTL, config.MaxSize, string(headersJSON), string(methodsJSON), string(statusCodesJSON), string(excludePathsJSON))
 	return err
 }
 
@@ -779,5 +974,203 @@ func MigrateNulls(db *sql.DB) error {
 			return err
 		}
 	}
+	return nil
+}
+
+// InitializeDefaultConfig initializes the database with default values from config.yml
+func InitializeDefaultConfig() error {
+	// Read config.yml
+	configData, err := os.ReadFile("config.yml")
+	if err != nil {
+		return fmt.Errorf("failed to read config.yml: %v", err)
+	}
+
+	// Parse YAML into Config struct
+	var config Config
+	if err := yaml.Unmarshal(configData, &config); err != nil {
+		return fmt.Errorf("failed to parse config.yml: %v", err)
+	}
+
+	// Start a transaction
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %v", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Update server config
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO server_config (id, port, worker_count)
+		VALUES (1, ?, ?)`,
+		config.Server.Port, config.Server.WorkerCount)
+	if err != nil {
+		return fmt.Errorf("failed to update server config: %v", err)
+	}
+
+	// Update TLS config
+	cipherSuitesJSON, err := json.Marshal(config.Server.TLS.CipherSuites)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cipher suites: %v", err)
+	}
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO tls_config (id, enabled, cert_file, key_file, min_version, cipher_suites, client_auth)
+		VALUES (1, ?, ?, ?, ?, ?, ?)`,
+		config.Server.TLS.Enabled, config.Server.TLS.CertFile, config.Server.TLS.KeyFile,
+		config.Server.TLS.MinVersion, string(cipherSuitesJSON), config.Server.TLS.ClientAuth)
+	if err != nil {
+		return fmt.Errorf("failed to update TLS config: %v", err)
+	}
+
+	// Update load balancing config
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO load_balancing_config (id, strategy, ip_hash_enabled, ip_hash_header, ip_hash_fallback_header,
+			weighted_round_robin_enabled, weighted_round_robin_weight_by_capacity)
+		VALUES (1, ?, ?, ?, ?, ?, ?)`,
+		config.Server.LoadBalancing.Strategy,
+		config.Server.LoadBalancing.IPHash.Enabled,
+		config.Server.LoadBalancing.IPHash.Header,
+		config.Server.LoadBalancing.IPHash.FallbackHeader,
+		config.Server.LoadBalancing.WeightedRoundRobin.Enabled,
+		config.Server.LoadBalancing.WeightedRoundRobin.WeightByCapacity)
+	if err != nil {
+		return fmt.Errorf("failed to update load balancing config: %v", err)
+	}
+
+	// Update connection pool config
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO connection_pool_config (id, enabled, max_idle_conns, max_idle_conns_per_host,
+			max_conns_per_host, idle_conn_timeout, max_lifetime, keep_alive, dial_timeout,
+			tls_handshake_timeout, expect_continue_timeout, response_header_timeout,
+			disable_keep_alives, disable_compression)
+		VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		config.Server.ConnectionPool.Enabled,
+		config.Server.ConnectionPool.MaxIdleConns,
+		config.Server.ConnectionPool.MaxIdleConnsPerHost,
+		config.Server.ConnectionPool.MaxConnsPerHost,
+		config.Server.ConnectionPool.IdleConnTimeout,
+		config.Server.ConnectionPool.MaxLifetime,
+		config.Server.ConnectionPool.KeepAlive,
+		config.Server.ConnectionPool.DialTimeout,
+		config.Server.ConnectionPool.TLSHandshakeTimeout,
+		config.Server.ConnectionPool.ExpectContinueTimeout,
+		config.Server.ConnectionPool.ResponseHeaderTimeout,
+		config.Server.ConnectionPool.DisableKeepAlives,
+		config.Server.ConnectionPool.DisableCompression)
+	if err != nil {
+		return fmt.Errorf("failed to update connection pool config: %v", err)
+	}
+
+	// Update cache config
+	headersJSON, err := json.Marshal(config.Server.Cache.Headers)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cache headers: %v", err)
+	}
+	methodsJSON, err := json.Marshal(config.Server.Cache.Methods)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cache methods: %v", err)
+	}
+	statusCodesJSON, err := json.Marshal(config.Server.Cache.StatusCodes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cache status codes: %v", err)
+	}
+	excludePathsJSON, err := json.Marshal(config.Server.Cache.ExcludePaths)
+	if err != nil {
+		return fmt.Errorf("failed to marshal cache exclude paths: %v", err)
+	}
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO cache_config (id, enabled, ttl, max_size, headers, methods, status_codes, exclude_paths)
+		VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+		config.Server.Cache.Enabled,
+		config.Server.Cache.TTL,
+		config.Server.Cache.MaxSize,
+		string(headersJSON),
+		string(methodsJSON),
+		string(statusCodesJSON),
+		string(excludePathsJSON))
+	if err != nil {
+		return fmt.Errorf("failed to update cache config: %v", err)
+	}
+
+	// Update circuit breaker config
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO circuit_breaker_config (id, enabled, failure_threshold, success_threshold,
+			reset_timeout, half_open_timeout)
+		VALUES (1, ?, ?, ?, ?, ?)`,
+		config.Server.CircuitBreaker.Enabled,
+		config.Server.CircuitBreaker.FailureThreshold,
+		config.Server.CircuitBreaker.SuccessThreshold,
+		config.Server.CircuitBreaker.ResetTimeout,
+		config.Server.CircuitBreaker.HalfOpenTimeout)
+	if err != nil {
+		return fmt.Errorf("failed to update circuit breaker config: %v", err)
+	}
+
+	// Update metrics config
+	labelsJSON, err := json.Marshal(config.Metrics.Labels)
+	if err != nil {
+		return fmt.Errorf("failed to marshal metrics labels: %v", err)
+	}
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO metrics_config (id, enabled, port, path, auth_enabled, bearer_token,
+			collect_interval, retention_period, labels, prometheus_enabled,
+			prometheus_namespace, prometheus_subsystem, prometheus_path)
+		VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		config.Metrics.Enabled,
+		config.Metrics.Port,
+		config.Metrics.Path,
+		config.Metrics.AuthEnabled,
+		config.Metrics.BearerToken,
+		config.Metrics.CollectInterval,
+		config.Metrics.RetentionPeriod,
+		string(labelsJSON),
+		config.Metrics.Prometheus.Enabled,
+		config.Metrics.Prometheus.Namespace,
+		config.Metrics.Prometheus.Subsystem,
+		config.Metrics.Prometheus.Path)
+	if err != nil {
+		return fmt.Errorf("failed to update metrics config: %v", err)
+	}
+
+	// Update logging config
+	_, err = tx.Exec(`
+		INSERT OR REPLACE INTO logging_config (id, enabled, level, file, max_size, max_backups,
+			max_age, compress, format)
+		VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		config.Logging.Enabled,
+		config.Logging.Level,
+		config.Logging.File,
+		config.Logging.MaxSize,
+		config.Logging.MaxBackups,
+		config.Logging.MaxAge,
+		config.Logging.Compress,
+		config.Logging.Format)
+	if err != nil {
+		return fmt.Errorf("failed to update logging config: %v", err)
+	}
+
+	// Update backends
+	_, err = tx.Exec("DELETE FROM backends")
+	if err != nil {
+		return fmt.Errorf("failed to clear backends: %v", err)
+	}
+	for _, b := range config.Backends {
+		_, err = tx.Exec(`
+			INSERT INTO backends (url, weight, max_connections, healthy)
+			VALUES (?, ?, ?, ?)`,
+			b.URL, b.Weight, b.MaxConnections, b.Healthy)
+		if err != nil {
+			return fmt.Errorf("failed to insert backend: %v", err)
+		}
+	}
+
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
 	return nil
 }

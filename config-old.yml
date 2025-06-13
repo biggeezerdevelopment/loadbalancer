@@ -1,6 +1,6 @@
 server:
-    port: "8080"
-    worker_count: "100"
+    port: 8080
+    worker_count: 100
     tls:
         enabled: ""
         cert_file: ""
@@ -9,22 +9,22 @@ server:
         cipher_suites: []
         client_auth: ""
     load_balancing:
-        strategy: round_robin
+        strategy: "round_robin"
         ip_hash:
             enabled: "true"
-            header: X-Forwarded-For
-            fallback_header: X-Real-IP
+            header: "X-Forwarded-For"
+            fallback_header: "X-Real-IP"
         weighted_round_robin:
             enabled: "true"
             weight_by_capacity: "true"
     connection_pool:
         enabled: "true"
-        max_idle_conns: "100"
-        max_idle_conns_per_host: "10"
-        max_conns_per_host: "100"
+        max_idle_conns: 100
+        max_idle_conns_per_host: 10
+        max_conns_per_host: 100
         idle_conn_timeout: 10m
         max_lifetime: 10m
-        keep_alive: "true"
+        keep_alive: true
         dial_timeout: 10m
         tls_handshake_timeout: 10m
         expect_continue_timeout: 10m
@@ -34,21 +34,21 @@ server:
     cache:
         enabled: "true"
         ttl: 10m
-        max_size: "1000"
+        max_size: 1000
         headers:
-            - '*'
+            - "*"
         exclude_paths:
-            - /metrics
+            - "/metrics"
     circuit_breaker:
         enabled: "true"
-        failure_threshold: "5"
-        success_threshold: "2"
+        failure_threshold: 5
+        success_threshold: 2
         reset_timeout: 10m
         half_open_timeout: 10m
 metrics:
     enabled: "true"
-    port: "9091"
-    path: /metrics
+    port: 9091
+    path: /api/metrics
     auth:
         enabled: false
         bearer_token: "1234567890"
@@ -57,27 +57,23 @@ metrics:
     labels: {}
     prometheus:
         enabled: "true"
-        namespace: loadbalancer
-        subsystem: loadbalancer
+        namespace: "loadbalancer"
+        subsystem: "loadbalancer"
         path: /api/metrics
-backends:
-    - url: http://localhost:8083
-      weight: "1"
-      max_connections: "100"
-      healthy: true
+backends: []
 logging:
-    enabled: "true"
+    enabled: "on"
     level: debug
     file: logs/loadbalancer.log
-    max_size: "100"
-    max_backups: "10"
+    max_size: 100
+    max_backups: 10
     max_age: 1h
     compress: "true"
     format: json
 dashboard:
     port: 8081
     auth:
-        enabled: "true"
+        enabled: true
         username: admin
         password: admin
         session_timeout: 1h

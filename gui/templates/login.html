@@ -83,7 +83,7 @@
             <p class="text-gray-400">Load Balancer Dashboard</p>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm">
             <div class="mb-4">
                 <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
                 <input 
@@ -118,69 +118,80 @@
     </div>
 
     <script>
-        function handleLogin(event) {
+        // Add event listener when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+        });
+
+        // Handle login form submission
+        async function handleLogin(event) {
             event.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
 
             // Clear any previous error messages
             errorMessage.style.display = 'none';
             errorMessage.textContent = '';
 
-            fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Invalid credentials');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Store the token if provided
-                if (data.token) {
-                    localStorage.setItem('auth_token', data.token);
-                }
-                // Redirect to dashboard
-                window.location.href = '/';
-            })
-            .catch(error => {
-                errorMessage.textContent = error.message || 'Login failed. Please try again.';
-                errorMessage.style.display = 'block';
-            });
-        }
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="material-icons animate-spin">hourglass_empty</span> Signing in...';
 
-        // Check if user is already logged in
-        window.addEventListener('load', () => {
-            const token = localStorage.getItem('auth_token');
-            if (token) {
-                // Verify token validity
-                fetch('/api/verify', {
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/';
-                    } else {
-                        localStorage.removeItem('auth_token');
-                    }
-                })
-                .catch(() => {
-                    localStorage.removeItem('auth_token');
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
                 });
+
+                const contentType = response.headers.get('content-type');
+                let responseData;
+
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                } else {
+                    const text = await response.text();
+                    try {
+                        responseData = JSON.parse(text);
+                    } catch {
+                        responseData = { error: text };
+                    }
+                }
+
+                if (!response.ok) {
+                    throw new Error(responseData.error || responseData.message || 'Login failed. Please try again.');
+                }
+
+                // Store the token
+                if (responseData.token) {
+                    localStorage.setItem('token', responseData.token);
+                    // Use replace instead of href to prevent back button issues
+                    window.location.replace('/dashboard');
+                } else {
+                    throw new Error('No token received from server');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Show error message
+                errorMessage.textContent = error.message || 'Network error. Please check your connection and try again.';
+                errorMessage.style.display = 'block';
+                
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
-        });
+        }
     </script>
 </body>
 </html> 

@@ -1,881 +1,802 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>QuantumFlow</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumFlow - Dashboard</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style type="text/tailwindcss">
         body {
-          font-family: 'Inter', sans-serif;
-          background-color: #111827;
-          color: #D1D5DB;
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #D1D5DB;
+            min-height: 100vh;
         }
         .card {
-          background-color: #1F2937;
-          border-radius: 0.5rem;
-          padding: 1.5rem;
-          margin-bottom: 1.5rem;
+            background-color: #1F2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .input-field,
-        .select-field {
-          background-color: #374151;
-          border: 1px solid #4B5563;
-          color: #D1D5DB;
-          border-radius: 0.375rem;
-          padding: 0.5rem 0.75rem;
-          width: 100%;
-          box-sizing: border-box;
+        .input-field {
+            background-color: #374151;
+            border: 1px solid #4B5563;
+            color: #D1D5DB;
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
         }
-        .input-field:focus,
-        .select-field:focus {
-          outline: none;
-          border-color: #3B82F6;
-          box-shadow: 0 0 0 2px #1E40AF;
-        }
-        label {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #9CA3AF;
-          margin-bottom: 0.25rem;
-          display: block;
-        }
-        .checkbox-label {
-          color: #D1D5DB;
-          font-weight: 500;
-        }
-        .checkbox-input {
-          width: 1rem;
-          height: 1rem;
-          margin-right: 0.5rem;
-          border-radius: 0.25rem;
-          accent-color: #3B82F6;
+        .input-field:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 2px #1E40AF;
         }
         .button {
-          padding: 0.5rem 1rem;
-          border-radius: 0.375rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.2s ease-in-out;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .button-primary {
-          background-color: #3B82F6;
-          color: white;
-        }
-        .button-primary:hover {
-          background-color: #2563EB;
-        }
-        .button-danger {
-          background-color: #EF4444;
-          color: white;
-        }
-        .button-danger:hover {
-          background-color: #DC2626;
-        }
-        .section-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: #E5E7EB;
-          margin-bottom: 1rem;
-        }
-        .grid-cols-form {
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        }
-        .sub-section-title {
-          font-size: 1rem;
-          font-weight: 600;
-          color: #c0c5cb;
-          margin-top: 1.5rem;
-          margin-bottom: 0.75rem;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            color: #9CA3AF;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            cursor: pointer;
-        }
-        .nav-item:hover {
-            background-color: #374151;
-            color: #E5E7EB;
-        }
-        .nav-item.active {
             background-color: #3B82F6;
             color: white;
         }
-        .nav-item .material-icons {
-            margin-right: 0.75rem;
+        .button-primary:hover {
+            background-color: #2563EB;
         }
-        .content-section {
-            display: none;
+        .button-danger {
+            background-color: #EF4444;
+            color: white;
         }
-        .content-section.active {
-            display: block;
+        .button-danger:hover {
+            background-color: #DC2626;
         }
         .material-icons {
             font-size: 24px;
             margin-right: 8px;
         }
-        .material-icons.text-4xl {
-            font-size: 48px;
+        .nav-item {
+            transition: background-color 0.2s ease-in-out;
         }
-        .stats-card {
-            background-color: #1F2937;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+        .nav-item:hover {
+            background-color: #374151;
         }
-        .stats-value {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #E5E7EB;
-        }
-        .stats-label {
-            font-size: 0.875rem;
-            color: #9CA3AF;
+        .nav-item.active {
+            background-color: #3B82F6;
+            color: white;
         }
     </style>
+    <script>
+        // Initialize configuration data
+        const initialConfig = JSON.parse('{{ .JSON }}');
+    </script>
+    <script src="/static/js/config.js"></script>
 </head>
-<body class="flex flex-col">
-    <header class="bg-[#1F2937] p-4 shadow-md mb-8">
-        <div class="flex justify-between items-center h-16">
+<body>
+    <!-- Header -->
+    <header class="bg-[#1F2937] shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center">
-                <div class="flex items-center">
-                    <span class="material-icons text-4xl text-blue-400 mr-3">cloud_sync</span>
-                    <h1 class="text-xl font-bold text-white">QuantumFlow LoadBalancer</h1>
-                </div>
+                <span class="material-icons text-blue-400 mr-2">cloud_sync</span>
+                <h1 class="text-2xl font-bold text-white">QuantumFlow</h1>
             </div>
-            <div class="flex items-center">
-                <button onclick="handleLogout()" class="text-white hover:text-gray-300 flex items-center">
-                    <span class="material-icons mr-1">logout</span>
-                    Logout
-                </button>
-            </div>
+            <button id="logoutButton" class="button button-danger">
+                <span class="material-icons">logout</span>
+                Logout
+            </button>
         </div>
     </header>
 
-    <div class="flex flex-1 px-8 pb-8">
-        <nav class="w-64 min-h-full bg-[#1F2937] p-4 flex flex-col mr-8 rounded-lg">
-            <div class="space-y-2 flex-grow">
-                <a class="nav-item active" data-target="server" href="#server">
-                    <span class="material-icons">dns</span> Server
-                </a>
-                <a class="nav-item" data-target="metrics" href="#metrics">
-                    <span class="material-icons">insights</span> Metrics
-                </a>
-                <a class="nav-item" data-target="prometheus" href="#prometheus">
-                    <span class="material-icons">terminal</span> Prometheus
-                </a>
-                <a class="nav-item" data-target="logging" href="#logging">
-                    <span class="material-icons">description</span> Logging
-                </a>
-                <a class="nav-item" data-target="tls" href="#tls">
-                    <span class="material-icons">https</span> TLS
-                </a>
-                <a class="nav-item" data-target="load-balancing" href="#load-balancing">
-                    <span class="material-icons">sync_alt</span> Load Balancing
-                </a>
-                <a class="nav-item" data-target="connection-pool" href="#connection-pool">
-                    <span class="material-icons">lan</span> Connection Pool
-                </a>
-                <a class="nav-item" data-target="circuit-breaker" href="#circuit-breaker">
-                    <span class="material-icons">electrical_services</span> Circuit Breaker
-                </a>
-                <a class="nav-item" data-target="cache" href="#cache">
-                    <span class="material-icons">cached</span> Cache
-                </a>
-                <a class="nav-item" data-target="backends" href="#backends">
-                    <span class="material-icons">storage</span> Backends
-                </a>
-            </div>
-            <div class="mt-auto">
-                <button class="button button-danger w-full whitespace-nowrap" onclick="saveConfig()">
-                    <span class="material-icons text-lg leading-none mr-1">save</span> Save Configuration
-                </button>
-            </div>
-        </nav>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex">
+            <!-- Navigation -->
+            <nav class="w-64 mr-8">
+                <div class="card">
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#server" class="nav-item flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                                <span class="material-icons">dns</span>
+                                Server
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#load-balancing" class="nav-item flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                                <span class="material-icons">balance</span>
+                                Load Balancing
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#backends" class="nav-item flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                                <span class="material-icons">storage</span>
+                                Backends
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#metrics" class="nav-item flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                                <span class="material-icons">analytics</span>
+                                Metrics
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#logging" class="nav-item flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md">
+                                <span class="material-icons">description</span>
+                                Logging
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-        <div class="flex-1 max-w-4xl">
-            <!-- Stats Overview 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="stats-card">
-                    <div class="stats-value" id="totalRequests">0</div>
-                    <div class="stats-label">Total Requests</div>
-                </div>
-                <div class="stats-card">
-                    <div class="stats-value" id="activeConnections">0</div>
-                    <div class="stats-label">Active Connections</div>
-                </div>
-                <div class="stats-card">
-                    <div class="stats-value" id="errorRate">0%</div>
-                    <div class="stats-label">Error Rate</div>
-                </div>
-            </div>
-            -->
-            <!-- Server Section -->
-            <div class="card content-section active" id="server">
-                <h2 class="section-title">Server</h2>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="server-port">Port</label>
-                        <input class="input-field" id="server-port" name="server.port" type="text" value="{{.Config.Server.Port}}"/>
-                    </div>
-                    <div>
-                        <label for="server-worker-count">Worker Count</label>
-                        <input class="input-field" id="server-worker-count" name="server.worker_count" type="text" value="{{.Config.Server.WorkerCount}}"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Metrics Section -->
-            <div class="card content-section" id="metrics">
-                <h2 class="section-title">Metrics</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="metrics-enabled" name="metrics.enabled" type="checkbox" {{if eq .Config.Metrics.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="metrics-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="metrics-port">Port</label>
-                        <input class="input-field" id="metrics-port" name="metrics.port" type="text" value="{{.Config.Metrics.Port}}"/>
-                    </div>
-                    <div>
-                        <label for="metrics-path">Path</label>
-                        <input class="input-field" id="metrics-path" name="metrics.path" type="text" value="{{.Config.Metrics.Path}}"/>
-                    </div>
-                    <div>
-                        <label for="metrics-collect-interval">Collect Interval</label>
-                        <input class="input-field" id="metrics-collect-interval" name="metrics.collect_interval" type="text" value="{{.Config.Metrics.CollectInterval}}"/>
-                    </div>
-                    <div>
-                        <label for="metrics-retention-period">Retention Period</label>
-                        <input class="input-field" id="metrics-retention-period" name="metrics.retention_period" type="text" value="{{.Config.Metrics.RetentionPeriod}}"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Prometheus Section -->
-            <div class="card content-section" id="prometheus">
-                <h2 class="section-title">Prometheus</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="prometheus-enabled" name="metrics.prometheus.enabled" type="checkbox" {{if eq .Config.Metrics.Prometheus.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="prometheus-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="prometheus-subsystem">Subsystem</label>
-                        <input class="input-field" id="prometheus-subsystem" name="metrics.prometheus.subsystem" type="text" value="{{.Config.Metrics.Prometheus.Subsystem}}"/>
-                    </div>
-                    <div>
-                        <label for="prometheus-namespace">Namespace</label>
-                        <input class="input-field" id="prometheus-namespace" name="metrics.prometheus.namespace" type="text" value="{{.Config.Metrics.Prometheus.Namespace}}"/>
-                    </div>
-                    <div>
-                        <label for="prometheus-path">Path</label>
-                        <input class="input-field" id="prometheus-path" name="metrics.prometheus.path" type="text" value="{{.Config.Metrics.Prometheus.Path}}"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Logging Section -->
-            <div class="card content-section" id="logging">
-                <h2 class="section-title">Logging</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="logging-enabled" name="logging.enabled" type="checkbox" {{if eq .Config.Logging.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="logging-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6 mb-6">
-                    <div>
-                        <label for="logging-level">Level</label>
-                        <select class="select-field" id="logging-level" name="logging.level">
-                            <option value="info" {{if eq .Config.Logging.Level "info"}}selected{{end}}>Info</option>
-                            <option value="debug" {{if eq .Config.Logging.Level "debug"}}selected{{end}}>Debug</option>
-                            <option value="warn" {{if eq .Config.Logging.Level "warn"}}selected{{end}}>Warn</option>
-                            <option value="error" {{if eq .Config.Logging.Level "error"}}selected{{end}}>Error</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="logging-file">File</label>
-                        <input class="input-field" id="logging-file" name="logging.file" type="text" value="{{.Config.Logging.File}}"/>
-                    </div>
-                    <div>
-                        <label for="logging-max-size">Max Size</label>
-                        <input class="input-field" id="logging-max-size" name="logging.max_size" type="number" value="{{.Config.Logging.MaxSize}}"/>
-                    </div>
-                    <div>
-                        <label for="logging-max-backups">Max Backups</label>
-                        <input class="input-field" id="logging-max-backups" name="logging.max_backups" type="number" value="{{.Config.Logging.MaxBackups}}"/>
-                    </div>
-                    <div>
-                        <label for="logging-max-age">Max Age</label>
-                        <input class="input-field" id="logging-max-age" name="logging.max_age" type="number" value="{{.Config.Logging.MaxAge}}"/>
-                    </div>
-                    <div class="flex items-end">
-                        <div class="flex items-center">
-                            <input class="checkbox-input" id="logging-compress" name="logging.compress" type="checkbox" {{if eq .Config.Logging.Compress "true"}}checked{{end}}/>
-                            <label class="checkbox-label ml-2" for="logging-compress">Compress</label>
-                        </div>
-                    </div>
-                    <div>
-                        <label for="logging-format">Format</label>
-                        <select class="select-field" id="logging-format" name="logging.format">
-                            <option value="json" {{if eq .Config.Logging.Format "json"}}selected{{end}}>JSON</option>
-                            <option value="text" {{if eq .Config.Logging.Format "text"}}selected{{end}}>Text</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TLS Section -->
-            <div class="card content-section" id="tls">
-                <h2 class="section-title">TLS</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="tls-enabled" name="server.tls.enabled" type="checkbox" {{if eq .Config.Server.TLS.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="tls-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="tls-cert-file">Cert File</label>
-                        <input class="input-field" id="tls-cert-file" name="server.tls.cert_file" type="text" value="{{.Config.Server.TLS.CertFile}}"/>
-                    </div>
-                    <div>
-                        <label for="tls-key-file">Key File</label>
-                        <input class="input-field" id="tls-key-file" name="server.tls.key_file" type="text" value="{{.Config.Server.TLS.KeyFile}}"/>
-                    </div>
-                    <div>
-                        <label for="tls-min-version">Min Version</label>
-                        <select class="select-field" id="tls-min-version" name="server.tls.min_version">
-                            <option value="">Default</option>
-                            <option value="tls1.0" {{if eq .Config.Server.TLS.MinVersion "tls1.0"}}selected{{end}}>TLS 1.0</option>
-                            <option value="tls1.1" {{if eq .Config.Server.TLS.MinVersion "tls1.1"}}selected{{end}}>TLS 1.1</option>
-                            <option value="tls1.2" {{if eq .Config.Server.TLS.MinVersion "tls1.2"}}selected{{end}}>TLS 1.2</option>
-                            <option value="tls1.3" {{if eq .Config.Server.TLS.MinVersion "tls1.3"}}selected{{end}}>TLS 1.3</option>
-                        </select>
-                    </div>
-                    <div class="col-span-full">
-                        <label for="tls-cipher-suites">Cipher Suites</label>
-                        <input class="input-field" id="tls-cipher-suites" name="server.tls.cipher_suites" placeholder="Comma-separated list, e.g., TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256" type="text" value="{{range .Config.Server.TLS.CipherSuites}}{{.}},{{end}}"/>
-                    </div>
-                    <div>
-                        <label for="tls-client-auth">Client Auth</label>
-                        <select class="select-field" id="tls-client-auth" name="server.tls.client_auth">
-                            <option value="">None</option>
-                            <option value="request" {{if eq .Config.Server.TLS.ClientAuth "request"}}selected{{end}}>Request</option>
-                            <option value="require_and_verify" {{if eq .Config.Server.TLS.ClientAuth "require_and_verify"}}selected{{end}}>Require and Verify</option>
-                            <option value="require_any" {{if eq .Config.Server.TLS.ClientAuth "require_any"}}selected{{end}}>Require Any</option>
-                            <option value="verify_if_given" {{if eq .Config.Server.TLS.ClientAuth "verify_if_given"}}selected{{end}}>Verify if Given</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Load Balancing Section -->
-            <div class="card content-section" id="load-balancing">
-                <h2 class="section-title">Load Balancing</h2>
-                <div class="grid grid-cols-form gap-6 mb-6">
-                    <div>
-                        <label for="lb-strategy">Strategy</label>
-                        <select class="select-field" id="lb-strategy" name="server.load_balancing.strategy">
-                            <option value="least_connections" {{if eq .Config.Server.LoadBalancing.Strategy "least_connections"}}selected{{end}}>Least Connections</option>
-                            <option value="round_robin" {{if eq .Config.Server.LoadBalancing.Strategy "round_robin"}}selected{{end}}>Round Robin</option>
-                            <option value="ip_hash" {{if eq .Config.Server.LoadBalancing.Strategy "ip_hash"}}selected{{end}}>IP Hash</option>
-                            <option value="weighted_round_robin" {{if eq .Config.Server.LoadBalancing.Strategy "weighted_round_robin"}}selected{{end}}>Weighted Round Robin</option>
-                        </select>
-                    </div>
-                </div>
-                <h3 class="sub-section-title">IP Hash</h3>
-                <div class="grid grid-cols-form gap-6 mb-6">
-                    <div class="flex items-center">
-                        <input class="checkbox-input" id="lb-ip-hash-enabled" name="server.load_balancing.ip_hash.enabled" type="checkbox" {{if eq .Config.Server.LoadBalancing.IPHash.Enabled "true"}}checked{{end}}/>
-                        <label class="checkbox-label ml-2" for="lb-ip-hash-enabled">Enabled</label>
-                    </div>
-                    <div>
-                        <label for="lb-ip-hash-header">Header</label>
-                        <input class="input-field" id="lb-ip-hash-header" name="server.load_balancing.ip_hash.header" type="text" value="{{.Config.Server.LoadBalancing.IPHash.Header}}"/>
-                    </div>
-                    <div>
-                        <label for="lb-ip-hash-fallback-header">Fallback Header</label>
-                        <input class="input-field" id="lb-ip-hash-fallback-header" name="server.load_balancing.ip_hash.fallback_header" type="text" value="{{.Config.Server.LoadBalancing.IPHash.FallbackHeader}}"/>
-                    </div>
-                </div>
-                <h3 class="sub-section-title">Weighted Round Robin</h3>
-                <div class="grid grid-cols-form gap-6">
-                    <div class="flex items-center">
-                        <input class="checkbox-input" id="lb-wrr-enabled" name="server.load_balancing.weighted_round_robin.enabled" type="checkbox" {{if eq .Config.Server.LoadBalancing.WeightedRoundRobin.Enabled "true"}}checked{{end}}/>
-                        <label class="checkbox-label ml-2" for="lb-wrr-enabled">Enabled</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input class="checkbox-input" id="lb-wrr-weight-by-capacity" name="server.load_balancing.weighted_round_robin.weight_by_capacity" type="checkbox" {{if eq .Config.Server.LoadBalancing.WeightedRoundRobin.WeightByCapacity "true"}}checked{{end}}/>
-                        <label class="checkbox-label ml-2" for="lb-wrr-weight-by-capacity">Weight by Capacity</label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Connection Pool Section -->
-            <div class="card content-section" id="connection-pool">
-                <h2 class="section-title">Connection Pool</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="connection-pool-enabled" name="server.connection_pool.enabled" type="checkbox" {{if eq .Config.Server.ConnectionPool.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="connection-pool-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6 mb-6">
-                    <div>
-                        <label for="cp-max-idle-conns">Max Idle Conns</label>
-                        <input class="input-field" id="cp-max-idle-conns" name="server.connection_pool.max_idle_conns" type="text" value="{{.Config.Server.ConnectionPool.MaxIdleConns}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-max-idle-conns-per-host">Max Idle Conns Per Host</label>
-                        <input class="input-field" id="cp-max-idle-conns-per-host" name="server.connection_pool.max_idle_conns_per_host" type="text" value="{{.Config.Server.ConnectionPool.MaxIdleConnsPerHost}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-max-conns-per-host">Max Conns Per Host</label>
-                        <input class="input-field" id="cp-max-conns-per-host" name="server.connection_pool.max_conns_per_host" type="text" value="{{.Config.Server.ConnectionPool.MaxConnsPerHost}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-idle-conn-timeout">Idle Conn Timeout</label>
-                        <input class="input-field" id="cp-idle-conn-timeout" name="server.connection_pool.idle_conn_timeout" type="text" value="{{.Config.Server.ConnectionPool.IdleConnTimeout}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-max-lifetime">Max Lifetime</label>
-                        <input class="input-field" id="cp-max-lifetime" name="server.connection_pool.max_lifetime" type="text" value="{{.Config.Server.ConnectionPool.MaxLifetime}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-keep-alive">Keep Alive</label>
-                        <input class="input-field" id="cp-keep-alive" name="server.connection_pool.keep_alive" type="text" value="{{.Config.Server.ConnectionPool.KeepAlive}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-dial-timeout">Dial Timeout</label>
-                        <input class="input-field" id="cp-dial-timeout" name="server.connection_pool.dial_timeout" type="text" value="{{.Config.Server.ConnectionPool.DialTimeout}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-tls-handshake-timeout">TLS Handshake Timeout</label>
-                        <input class="input-field" id="cp-tls-handshake-timeout" name="server.connection_pool.tls_handshake_timeout" type="text" value="{{.Config.Server.ConnectionPool.TLSHandshakeTimeout}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-expect-continue-timeout">Expect Continue Timeout</label>
-                        <input class="input-field" id="cp-expect-continue-timeout" name="server.connection_pool.expect_continue_timeout" type="text" value="{{.Config.Server.ConnectionPool.ExpectContinueTimeout}}"/>
-                    </div>
-                    <div>
-                        <label for="cp-response-header-timeout">Response Header Timeout</label>
-                        <input class="input-field" id="cp-response-header-timeout" name="server.connection_pool.response_header_timeout" type="text" value="{{.Config.Server.ConnectionPool.ResponseHeaderTimeout}}"/>
-                    </div>
-                    <div class="flex items-end col-span-1">
-                        <div class="flex items-center">
-                            <input class="checkbox-input" id="cp-disable-keep-alives" name="server.connection_pool.disable_keep_alives" type="checkbox" {{if .Config.Server.ConnectionPool.DisableKeepAlives}}checked{{end}}/>
-                            <label class="checkbox-label ml-2" for="cp-disable-keep-alives">Disable Keep Alives</label>
-                        </div>
-                    </div>
-                    <div class="flex items-end col-span-1">
-                        <div class="flex items-center">
-                            <input class="checkbox-input" id="cp-disable-compression" name="server.connection_pool.disable_compression" type="checkbox" {{if .Config.Server.ConnectionPool.DisableCompression}}checked{{end}}/>
-                            <label class="checkbox-label ml-2" for="cp-disable-compression">Disable Compression</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Circuit Breaker Section -->
-            <div class="card content-section" id="circuit-breaker">
-                <h2 class="section-title">Circuit Breaker</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="circuit-breaker-enabled" name="server.circuit_breaker.enabled" type="checkbox" {{if eq .Config.Server.CircuitBreaker.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="circuit-breaker-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="cb-failure-threshold">Failure Threshold</label>
-                        <input class="input-field" id="cb-failure-threshold" name="server.circuit_breaker.failure_threshold" type="number" value="{{.Config.Server.CircuitBreaker.FailureThreshold}}"/>
-                    </div>
-                    <div>
-                        <label for="cb-success-threshold">Success Threshold</label>
-                        <input class="input-field" id="cb-success-threshold" name="server.circuit_breaker.success_threshold" type="number" value="{{.Config.Server.CircuitBreaker.SuccessThreshold}}"/>
-                    </div>
-                    <div>
-                        <label for="cb-reset-timeout">Reset Timeout</label>
-                        <input class="input-field" id="cb-reset-timeout" name="server.circuit_breaker.reset_timeout" type="text" value="{{.Config.Server.CircuitBreaker.ResetTimeout}}"/>
-                    </div>
-                    <div>
-                        <label for="cb-half-open-timeout">Half-Open Timeout</label>
-                        <input class="input-field" id="cb-half-open-timeout" name="server.circuit_breaker.half_open_timeout" type="text" value="{{.Config.Server.CircuitBreaker.HalfOpenTimeout}}"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cache Section -->
-            <div class="card content-section" id="cache">
-                <h2 class="section-title">Cache</h2>
-                <div class="flex items-center mb-4">
-                    <input class="checkbox-input" id="cache-enabled" name="server.cache.enabled" type="checkbox" {{if eq .Config.Server.Cache.Enabled "true"}}checked{{end}}/>
-                    <label class="checkbox-label ml-2" for="cache-enabled">Enabled</label>
-                </div>
-                <div class="grid grid-cols-form gap-6">
-                    <div>
-                        <label for="cache-ttl">TTL</label>
-                        <input class="input-field" id="cache-ttl" name="server.cache.ttl" type="text" value="{{.Config.Server.Cache.TTL}}"/>
-                    </div>
-                    <div>
-                        <label for="cache-max-size">Max Size (MB)</label>
-                        <input class="input-field" id="cache-max-size" name="server.cache.max_size" type="number" value="{{.Config.Server.Cache.MaxSize}}"/>
-                    </div>
-                    <div>
-                        <label for="cache-headers">Headers</label>
-                        <input class="input-field" id="cache-headers" name="server.cache.headers" placeholder="e.g., Content-Type, Cache-Control" type="text" value="{{range .Config.Server.Cache.Headers}}{{.}},{{end}}"/>
-                    </div>
-                    <div>
-                        <label for="cache-exclude-path">Exclude Path</label>
-                        <input class="input-field" id="cache-exclude-path" name="server.cache.exclude_paths" placeholder="e.g., /admin/*, /api/realtime" type="text" value="{{range .Config.Server.Cache.ExcludePaths}}{{.}},{{end}}"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Backends Section -->
-            <div class="card content-section" id="backends">
-                <h2 class="section-title">Backends</h2>
-                <div class="space-y-6 mb-6">
-                    {{range .Config.Backends}}
-                    <div class="grid grid-cols-1 gap-y-4 md:grid-cols-[2fr_1fr_1fr_auto] md:gap-x-4 items-end">
-                        <div class="md:col-span-4 text-gray-400 text-sm font-medium">Backend</div>
+            <!-- Content Sections -->
+            <div class="flex-1 space-y-8">
+                <!-- Server Section -->
+                <section id="server" class="card">
+                    <h2 class="text-xl font-semibold text-white mb-4">Server Configuration</h2>
+                    <form id="serverForm" class="space-y-4">
                         <div>
-                            <label for="backend-url">URL</label>
-                            <input class="input-field" id="backend-url" name="backends[].url" type="text" value="{{.URL}}"/>
+                            <label for="serverPort" class="block text-sm font-medium text-gray-300 mb-1">Port</label>
+                            <input type="text" id="serverPort" name="server.port" required class="input-field" value="{{ .Config.Server.Port }}">
                         </div>
                         <div>
-                            <label for="backend-weight">Weight</label>
-                            <input class="input-field" id="backend-weight" name="backends[].weight" type="number" value="{{.Weight}}"/>
+                            <label for="serverWorkerCount" class="block text-sm font-medium text-gray-300 mb-1">Worker Count</label>
+                            <input type="text" id="serverWorkerCount" name="server.worker_count" required class="input-field" value="{{ .Config.Server.WorkerCount }}">
                         </div>
                         <div>
-                            <label for="backend-maxconn">Max Connections</label>
-                            <input class="input-field" id="backend-maxconn" name="backends[].max_connections" type="number" value="{{.MaxConnections}}"/>
+                            <label for="serverTLSEnabled" class="block text-sm font-medium text-gray-300 mb-1">TLS Enabled</label>
+                            <input type="checkbox" id="serverTLSEnabled" name="server.tls.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Server.TLS.Enabled "true" }}checked{{ end }}>
                         </div>
-                        <button class="button button-danger h-10" onclick="deleteBackend('{{.URL}}')">
-                            <span class="material-icons text-lg leading-none mr-1">delete</span> Delete
+                        <div>
+                            <label for="serverTLSCertFile" class="block text-sm font-medium text-gray-300 mb-1">TLS Cert File</label>
+                            <input type="text" id="serverTLSCertFile" name="server.tls.cert_file" class="input-field" value="{{ .Config.Server.TLS.CertFile }}">
+                        </div>
+                        <div>
+                            <label for="serverTLSKeyFile" class="block text-sm font-medium text-gray-300 mb-1">TLS Key File</label>
+                            <input type="text" id="serverTLSKeyFile" name="server.tls.key_file" class="input-field" value="{{ .Config.Server.TLS.KeyFile }}">
+                        </div>
+                        <div>
+                            <label for="serverTLSMinVersion" class="block text-sm font-medium text-gray-300 mb-1">TLS Min Version</label>
+                            <input type="text" id="serverTLSMinVersion" name="server.tls.min_version" class="input-field" value="{{ .Config.Server.TLS.MinVersion }}">
+                        </div>
+                        <div>
+                            <label for="serverTLSCipherSuites" class="block text-sm font-medium text-gray-300 mb-1">TLS Cipher Suites</label>
+                            <input type="text" id="serverTLSCipherSuites" name="server.tls.cipher_suites" class="input-field" value="{{ join .Config.Server.TLS.CipherSuites "," }}">
+                        </div>
+                        <div>
+                            <label for="serverTLSClientAuth" class="block text-sm font-medium text-gray-300 mb-1">TLS Client Auth</label>
+                            <input type="text" id="serverTLSClientAuth" name="server.tls.client_auth" class="input-field" value="{{ .Config.Server.TLS.ClientAuth }}">
+                        </div>
+                        <button type="submit" class="button button-primary">
+                            <span class="material-icons">save</span>
+                            Save
                         </button>
+                    </form>
+                </section>
+
+                <!-- Load Balancing Section -->
+                <section id="load-balancing" class="card hidden">
+                    <h2 class="text-xl font-semibold text-white mb-4">Load Balancing Configuration</h2>
+                    <form id="loadBalancingForm" class="space-y-4">
+                        <div>
+                            <label for="lbAlgorithm" class="block text-sm font-medium text-gray-300 mb-1">Strategy</label>
+                            <select id="lbAlgorithm" name="server.load_balancing.strategy" class="input-field">
+                                <option value="round_robin" {{ if eq .Config.Server.LoadBalancing.Strategy "round_robin" }}selected{{ end }}>Round Robin</option>
+                                <option value="least_connections" {{ if eq .Config.Server.LoadBalancing.Strategy "least_connections" }}selected{{ end }}>Least Connections</option>
+                                <option value="ip_hash" {{ if eq .Config.Server.LoadBalancing.Strategy "ip_hash" }}selected{{ end }}>IP Hash</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="ipHashEnabled" class="block text-sm font-medium text-gray-300 mb-1">IP Hash Enabled</label>
+                            <input type="checkbox" id="ipHashEnabled" name="server.load_balancing.ip_hash.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Server.LoadBalancing.IPHash.Enabled "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="ipHashHeader" class="block text-sm font-medium text-gray-300 mb-1">IP Hash Header</label>
+                            <input type="text" id="ipHashHeader" name="server.load_balancing.ip_hash.header" class="input-field" value="{{ .Config.Server.LoadBalancing.IPHash.Header }}">
+                        </div>
+                        <div>
+                            <label for="ipHashFallbackHeader" class="block text-sm font-medium text-gray-300 mb-1">IP Hash Fallback Header</label>
+                            <input type="text" id="ipHashFallbackHeader" name="server.load_balancing.ip_hash.fallback_header" class="input-field" value="{{ .Config.Server.LoadBalancing.IPHash.FallbackHeader }}">
+                        </div>
+                        <div>
+                            <label for="weightedRoundRobinEnabled" class="block text-sm font-medium text-gray-300 mb-1">Weighted Round Robin Enabled</label>
+                            <input type="checkbox" id="weightedRoundRobinEnabled" name="server.load_balancing.weighted_round_robin.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Server.LoadBalancing.WeightedRoundRobin.Enabled "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="weightByCapacity" class="block text-sm font-medium text-gray-300 mb-1">Weight By Capacity</label>
+                            <input type="checkbox" id="weightByCapacity" name="server.load_balancing.weighted_round_robin.weight_by_capacity" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Server.LoadBalancing.WeightedRoundRobin.WeightByCapacity "true" }}checked{{ end }}>
+                        </div>
+                        <button type="submit" class="button button-primary">
+                            <span class="material-icons">save</span>
+                            Save
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Backends Section -->
+                <section id="backends" class="card hidden">
+                    <h2 class="text-xl font-semibold text-white mb-4">Backends Configuration</h2>
+                    <form id="backendForm" class="space-y-4 mb-6">
+                        <div>
+                            <label for="backendUrl" class="block text-sm font-medium text-gray-300 mb-1">URL</label>
+                            <input type="url" id="backendUrl" name="url" required class="input-field" placeholder="http://example.com:8080">
+                        </div>
+                        <div>
+                            <label for="backendWeight" class="block text-sm font-medium text-gray-300 mb-1">Weight</label>
+                            <input type="number" id="backendWeight" name="weight" required class="input-field" value="1" min="1">
+                        </div>
+                        <div>
+                            <label for="backendMaxConnections" class="block text-sm font-medium text-gray-300 mb-1">Max Connections</label>
+                            <input type="number" id="backendMaxConnections" name="max_connections" required class="input-field" value="100" min="1">
+                        </div>
+                        <button type="submit" class="button button-primary">
+                            <span class="material-icons">add</span>
+                            Add Backend
+                        </button>
+                    </form>
+
+                    <div id="backendsList" class="space-y-4">
+                        {{ range .Config.Backends }}
+                        <div class="card bg-gray-800 p-4 flex justify-between items-center">
+                            <div>
+                                <h3 class="text-lg font-medium text-white">{{ .URL }}</h3>
+                                <p class="text-gray-400">Weight: {{ .Weight }} | Max Connections: {{ .MaxConnections }}</p>
+                                <p class="text-sm {{ if .Healthy }}text-green-400{{ else }}text-red-400{{ end }}">
+                                    Status: {{ if .Healthy }}Healthy{{ else }}Unhealthy{{ end }}
+                                </p>
+                            </div>
+                            <button onclick="deleteBackend('{{ .URL }}')" class="button button-danger">
+                                <span class="material-icons">delete</span>
+                                Remove
+                            </button>
+                        </div>
+                        {{ end }}
                     </div>
-                    {{end}}
-                </div>
-                <h3 class="text-lg font-semibold text-gray-200 mb-3 mt-8">Add New Backend</h3>
-                <div class="grid grid-cols-1 gap-y-4 md:grid-cols-[2fr_1fr_1fr_auto] md:gap-x-4 items-end mb-6">
-                    <div>
-                        <label for="new-backend-url">URL</label>
-                        <input class="input-field" id="new-backend-url" placeholder="http://backend:8080" type="text"/>
-                    </div>
-                    <div>
-                        <label for="new-backend-weight">Weight</label>
-                        <input class="input-field" id="new-backend-weight" type="number" value="1"/>
-                    </div>
-                    <div>
-                        <label for="new-backend-maxconn">Max Connections</label>
-                        <input class="input-field" id="new-backend-maxconn" type="number" value="100"/>
-                    </div>
-                    <button class="button button-primary h-10" onclick="addBackend()">
-                        <span class="material-icons text-lg leading-none mr-1">add</span> Add Backend
-                    </button>
-                </div>
+                </section>
+
+                <!-- Metrics Section -->
+                <section id="metrics" class="card hidden">
+                    <h2 class="text-xl font-semibold text-white mb-4">Metrics Configuration</h2>
+                    <form id="metricsForm" class="space-y-4">
+                        <div>
+                            <label for="metricsEnabled" class="block text-sm font-medium text-gray-300 mb-1">Enabled</label>
+                            <input type="checkbox" id="metricsEnabled" name="metrics.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Metrics.Enabled "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="metricsPort" class="block text-sm font-medium text-gray-300 mb-1">Port</label>
+                            <input type="text" id="metricsPort" name="metrics.port" class="input-field" value="{{ .Config.Metrics.Port }}">
+                        </div>
+                        <div>
+                            <label for="metricsPath" class="block text-sm font-medium text-gray-300 mb-1">Path</label>
+                            <input type="text" id="metricsPath" name="metrics.path" class="input-field" value="{{ .Config.Metrics.Path }}">
+                        </div>
+                        <div>
+                            <label for="metricsAuthEnabled" class="block text-sm font-medium text-gray-300 mb-1">Auth Enabled</label>
+                            <input type="checkbox" id="metricsAuthEnabled" name="metrics.auth.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if .Config.Metrics.Auth.Enabled }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="metricsBearerToken" class="block text-sm font-medium text-gray-300 mb-1">Bearer Token</label>
+                            <input type="text" id="metricsBearerToken" name="metrics.auth.bearer_token" class="input-field" value="{{ .Config.Metrics.Auth.BearerToken }}">
+                        </div>
+                        <div>
+                            <label for="collectInterval" class="block text-sm font-medium text-gray-300 mb-1">Collect Interval</label>
+                            <input type="text" id="collectInterval" name="metrics.collect_interval" class="input-field" value="{{ .Config.Metrics.CollectInterval }}">
+                        </div>
+                        <div>
+                            <label for="retentionPeriod" class="block text-sm font-medium text-gray-300 mb-1">Retention Period</label>
+                            <input type="text" id="retentionPeriod" name="metrics.retention_period" class="input-field" value="{{ .Config.Metrics.RetentionPeriod }}">
+                        </div>
+                        <div>
+                            <label for="metricsLabels" class="block text-sm font-medium text-gray-300 mb-1">Labels</label>
+                            <input type="text" id="metricsLabels" name="metrics.labels" class="input-field" value="{{ range $k, $v := .Config.Metrics.Labels }}{{ $k }}={{ $v }},{{ end }}">
+                        </div>
+                        <div>
+                            <label for="prometheusEnabled" class="block text-sm font-medium text-gray-300 mb-1">Prometheus Enabled</label>
+                            <input type="checkbox" id="prometheusEnabled" name="metrics.prometheus.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Metrics.Prometheus.Enabled "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="prometheusNamespace" class="block text-sm font-medium text-gray-300 mb-1">Prometheus Namespace</label>
+                            <input type="text" id="prometheusNamespace" name="metrics.prometheus.namespace" class="input-field" value="{{ .Config.Metrics.Prometheus.Namespace }}">
+                        </div>
+                        <div>
+                            <label for="prometheusSubsystem" class="block text-sm font-medium text-gray-300 mb-1">Prometheus Subsystem</label>
+                            <input type="text" id="prometheusSubsystem" name="metrics.prometheus.subsystem" class="input-field" value="{{ .Config.Metrics.Prometheus.Subsystem }}">
+                        </div>
+                        <div>
+                            <label for="prometheusPath" class="block text-sm font-medium text-gray-300 mb-1">Prometheus Path</label>
+                            <input type="text" id="prometheusPath" name="metrics.prometheus.path" class="input-field" value="{{ .Config.Metrics.Prometheus.Path }}">
+                        </div>
+                        <button type="submit" class="button button-primary">
+                            <span class="material-icons">save</span>
+                            Save
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Logging Section -->
+                <section id="logging" class="card hidden">
+                    <h2 class="text-xl font-semibold text-white mb-4">Logging Configuration</h2>
+                    <form id="loggingForm" class="space-y-4">
+                        <div>
+                            <label for="loggingEnabled" class="block text-sm font-medium text-gray-300 mb-1">Enabled</label>
+                            <input type="checkbox" id="loggingEnabled" name="logging.enabled" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Logging.Enabled "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="loggingLevel" class="block text-sm font-medium text-gray-300 mb-1">Level</label>
+                            <input type="text" id="loggingLevel" name="logging.level" class="input-field" value="{{ .Config.Logging.Level }}">
+                        </div>
+                        <div>
+                            <label for="loggingFile" class="block text-sm font-medium text-gray-300 mb-1">File</label>
+                            <input type="text" id="loggingFile" name="logging.file" class="input-field" value="{{ .Config.Logging.File }}">
+                        </div>
+                        <div>
+                            <label for="loggingMaxSize" class="block text-sm font-medium text-gray-300 mb-1">Max Size</label>
+                            <input type="text" id="loggingMaxSize" name="logging.max_size" class="input-field" value="{{ .Config.Logging.MaxSize }}">
+                        </div>
+                        <div>
+                            <label for="loggingMaxBackups" class="block text-sm font-medium text-gray-300 mb-1">Max Backups</label>
+                            <input type="text" id="loggingMaxBackups" name="logging.max_backups" class="input-field" value="{{ .Config.Logging.MaxBackups }}">
+                        </div>
+                        <div>
+                            <label for="loggingMaxAge" class="block text-sm font-medium text-gray-300 mb-1">Max Age</label>
+                            <input type="text" id="loggingMaxAge" name="logging.max_age" class="input-field" value="{{ .Config.Logging.MaxAge }}">
+                        </div>
+                        <div>
+                            <label for="loggingCompress" class="block text-sm font-medium text-gray-300 mb-1">Compress</label>
+                            <input type="checkbox" id="loggingCompress" name="logging.compress" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700" {{ if eq .Config.Logging.Compress "true" }}checked{{ end }}>
+                        </div>
+                        <div>
+                            <label for="loggingFormat" class="block text-sm font-medium text-gray-300 mb-1">Format</label>
+                            <input type="text" id="loggingFormat" name="logging.format" class="input-field" value="{{ .Config.Logging.Format }}">
+                        </div>
+                        <button type="submit" class="button button-primary">
+                            <span class="material-icons">save</span>
+                            Save
+                        </button>
+                    </form>
+                </section>
             </div>
         </div>
     </div>
 
     <script>
-        // Add this at the beginning of your script section
-        // Prevent back button after logout
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                // Page was loaded from cache (back button)
-                window.location.href = '/login';
-            }
-        });
+        // Handle logout
+        document.getElementById('logoutButton').addEventListener('click', async function() {
+            try {
+                console.log('Initiating logout...');
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
 
-        // Update metrics update function with better auth handling
-        function updateMetrics() {
-            fetch('/api/metrics', {
-                method: 'GET',
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        // Only redirect if we're not already on the login page
-                        if (window.location.pathname !== '/login') {
-                            window.location.href = '/login';
-                        }
-                        return;
-                    }
-                    throw new Error('Failed to fetch metrics');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return; // Skip if we got redirected
-                // Update metrics display
-                document.getElementById('totalRequests').textContent = data.total_requests;
-                document.getElementById('activeConnections').textContent = data.active_connections;
-                document.getElementById('requestsPerSecond').textContent = data.requests_per_second;
-                document.getElementById('averageResponseTime').textContent = data.avg_response_time + 'ms';
-            })
-            .catch(error => {
-                console.error('Error updating metrics:', error);
-            });
-        }
-
-        // Update metrics every 5 seconds only if we're on the metrics page
-        let metricsInterval;
-        function startMetricsUpdates() {
-            if (metricsInterval) {
-                clearInterval(metricsInterval);
-            }
-            metricsInterval = setInterval(() => {
-                if (document.getElementById('metrics').classList.contains('active')) {
-                    updateMetrics();
-                }
-            }, 5000);
-        }
-
-        // Start metrics updates when metrics section becomes active
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                if (this.getAttribute('data-target') === 'metrics') {
-                    updateMetrics(); // Update immediately
-                    startMetricsUpdates(); // Start interval
-                }
-            });
-        });
-
-        // Initial metrics update if on metrics page
-        if (document.getElementById('metrics').classList.contains('active')) {
-            updateMetrics();
-            startMetricsUpdates();
-        }
-
-        // Update handleLogout function
-        function handleLogout() {
-            fetch('/api/logout', {
-                method: 'POST',
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Logout failed');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    // Clear any stored tokens or session data
-                    localStorage.removeItem('token');
-                    // Stop metrics updates
-                    if (metricsInterval) {
-                        clearInterval(metricsInterval);
-                    }
+                console.log('Logout response received:', response.status);
+                
+                if (response.ok) {
+                    console.log('Logout successful, clearing data and redirecting...');
+                    // Clear any local storage or session data
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Force clear any cookies
+                    document.cookie.split(";").forEach(function(c) { 
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                    });
+                    
                     // Redirect to login page
                     window.location.href = '/login';
                 } else {
-                    throw new Error('Logout failed: ' + data.message);
+                    const error = await response.text();
+                    console.error('Logout failed:', error);
+                    alert('Error logging out: ' + error);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Logout error:', error);
-                // Still redirect to login page even if there's an error
-                window.location.href = '/login';
-            });
-        }
+                alert('Error logging out');
+            }
+        });
 
-        // Navigation
-        const navItems = document.querySelectorAll('.nav-item');
-        const contentSections = document.querySelectorAll('.content-section');
+        // Handle navigation and section visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show the first section by default
+            const firstSection = document.querySelector('.nav-item');
+            if (firstSection) {
+                firstSection.classList.add('active');
+                const sectionId = firstSection.getAttribute('href').substring(1);
+                document.getElementById(sectionId).classList.remove('hidden');
+            }
 
-        function showSection(targetId) {
-            contentSections.forEach(section => {
-                if (section.id === targetId) {
-                    section.classList.add('active');
-                } else {
-                    section.classList.remove('active');
-                }
-            });
-        }
-
-        navItems.forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.preventDefault();
-                navItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                const targetId = item.dataset.target;
-                showSection(targetId);
-                if (history.pushState) {
-                    history.pushState(null, null, `#${targetId}`);
-                } else {
-                    location.hash = `#${targetId}`;
-                }
+            // Handle navigation clicks
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all nav items
+                    document.querySelectorAll('.nav-item').forEach(navItem => {
+                        navItem.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('section.card').forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    
+                    // Show the selected section
+                    const sectionId = this.getAttribute('href').substring(1);
+                    document.getElementById(sectionId).classList.remove('hidden');
+                });
             });
         });
 
-        // Initial load: check URL hash
-        function showSectionFromHash() {
-            const hash = window.location.hash.substring(1);
-            const targetNavItem = document.querySelector(`.nav-item[data-target="${hash}"]`);
-            if (targetNavItem) {
-                navItems.forEach(i => i.classList.remove('active'));
-                targetNavItem.classList.add('active');
-                showSection(hash);
-            } else if (navItems.length > 0) {
-                navItems[0].classList.add('active');
-                showSection(navItems[0].dataset.target);
-                if (history.pushState) {
-                    history.pushState(null, null, `#${navItems[0].dataset.target}`);
-                } else {
-                    location.hash = `#${navItems[0].dataset.target}`;
-                }
-            }
-        }
-
-        // Listen for hash changes
-        window.addEventListener('hashchange', showSectionFromHash);
-        showSectionFromHash();
-
-        // Configuration handling
-        async function saveConfig() {
-            const saveButton = document.getElementById('saveConfigBtn');
-            saveButton.disabled = true;
-            saveButton.textContent = 'Saving...';
+        // Handle server form submission
+        document.getElementById('serverForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get the current full configuration
+            const currentConfig = JSON.parse('{{ .JSON }}');
+            
+            // Update only the server section
+            currentConfig.Server = {
+                Port: document.getElementById('serverPort').value,
+                WorkerCount: document.getElementById('serverWorkerCount').value,
+                TLS: {
+                    Enabled: document.getElementById('serverTLSEnabled').checked.toString(),
+                    CertFile: document.getElementById('serverTLSCertFile').value,
+                    KeyFile: document.getElementById('serverTLSKeyFile').value,
+                    MinVersion: document.getElementById('serverTLSMinVersion').value,
+                    CipherSuites: document.getElementById('serverTLSCipherSuites').value.split(',').map(s => s.trim()).filter(s => s),
+                    ClientAuth: document.getElementById('serverTLSClientAuth').value
+                },
+                LoadBalancing: currentConfig.Server.LoadBalancing,
+                ConnectionPool: currentConfig.Server.ConnectionPool,
+                Cache: currentConfig.Server.Cache,
+                CircuitBreaker: currentConfig.Server.CircuitBreaker
+            };
 
             try {
-                const config = {
-                    tls: {
-                        enabled: document.getElementById('tls-enabled').checked ? 'true' : 'false',
-                        cert_file: document.getElementById('tls-cert-file').value,
-                        key_file: document.getElementById('tls-key-file').value,
-                        min_version: document.getElementById('tls-min-version').value,
-                        cipher_suites: document.getElementById('tls-cipher-suites').value,
-                        client_auth: document.getElementById('tls-client-auth').value
-                    },
-                    load_balancing: {
-                        strategy: document.getElementById('lb-strategy').value,
-                        ip_hash_enabled: document.getElementById('lb-ip-hash-enabled').checked ? 'true' : 'false',
-                        ip_hash_header: document.getElementById('lb-ip-hash-header').value,
-                        ip_hash_fallback_header: document.getElementById('lb-ip-hash-fallback-header').value,
-                        weighted_round_robin_enabled: document.getElementById('lb-wrr-enabled').checked ? 'true' : 'false',
-                        weighted_round_robin_weight_by_capacity: document.getElementById('lb-wrr-weight-by-capacity').checked ? 'true' : 'false'
-                    },
-                    backends: Array.from(document.querySelectorAll('.backend-row')).map(row => ({
-                        url: row.querySelector('.backend-url').value,
-                        weight: row.querySelector('.backend-weight').value,
-                        max_connections: row.querySelector('.backend-max-connections').value,
-                        healthy: row.querySelector('.backend-healthy').checked
-                    })),
-                    metrics: {
-                        enabled: document.getElementById('metrics-enabled').checked ? 'true' : 'false',
-                        port: document.getElementById('metrics-port').value,
-                        path: document.getElementById('metrics-path').value,
-                        auth_enabled: document.getElementById('metrics-auth-enabled').checked,
-                        bearer_token: document.getElementById('metrics-bearer-token').value,
-                        collect_interval: document.getElementById('metrics-collect-interval').value,
-                        retention_period: document.getElementById('metrics-retention-period').value,
-                        labels: document.getElementById('metrics-labels').value,
-                        prometheus_enabled: document.getElementById('prometheus-enabled').checked ? 'true' : 'false',
-                        prometheus_namespace: document.getElementById('prometheus-namespace').value,
-                        prometheus_subsystem: document.getElementById('prometheus-subsystem').value,
-                        prometheus_path: document.getElementById('prometheus-path').value
-                    },
-                    logging: {
-                        enabled: document.getElementById('logging-enabled').checked ? 'true' : 'false',
-                        level: document.getElementById('logging-level').value,
-                        file: document.getElementById('logging-file').value,
-                        max_size: document.getElementById('logging-max-size').value,
-                        max_backups: document.getElementById('logging-max-backups').value,
-                        max_age: document.getElementById('logging-max-age').value,
-                        compress: document.getElementById('logging-compress').checked ? 'true' : 'false',
-                        format: document.getElementById('logging-format').value
-                    }
-                };
-
                 const response = await fetch('/api/config', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'same-origin',
-                    body: JSON.stringify(config)
+                    credentials: 'include',
+                    body: JSON.stringify(currentConfig)
                 });
 
-                if (response.status === 401) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                if (!response.ok) {
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Server configuration saved successfully');
+                    window.location.reload();
+                } else {
                     const error = await response.text();
-                    throw new Error(error || 'Failed to update configuration');
+                    alert('Error saving server configuration: ' + error);
                 }
-
-                const result = await response.json();
-                alert(result.message);
-                location.reload();
             } catch (error) {
-                alert(error.message);
-            } finally {
-                saveButton.disabled = false;
-                saveButton.textContent = 'Save Configuration';
+                console.error('Error:', error);
+                alert('Error saving server configuration');
             }
-        }
+        });
 
-        // Backend management
-        function addBackend() {
-            const url = document.getElementById('new-backend-url').value;
-            const weight = document.getElementById('new-backend-weight').value;
-            const maxConnections = document.getElementById('new-backend-maxconn').value;
-
-            if (!url) {
-                alert('URL is required');
-                return;
-            }
-
-            fetch('/api/backends', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+        // Handle load balancing form submission
+        document.getElementById('loadBalancingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get the current full configuration
+            const currentConfig = JSON.parse('{{ .JSON }}');
+            
+            // Update only the load balancing section
+            currentConfig.Server.LoadBalancing = {
+                Strategy: document.getElementById('lbAlgorithm').value,
+                IPHash: {
+                    Enabled: document.getElementById('ipHashEnabled').checked.toString(),
+                    Header: document.getElementById('ipHashHeader').value,
+                    FallbackHeader: document.getElementById('ipHashFallbackHeader').value
                 },
-                body: JSON.stringify({
-                    url: url,
-                    weight: weight || '1',
-                    max_connections: maxConnections || '100'
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add backend');
+                WeightedRoundRobin: {
+                    Enabled: document.getElementById('weightedRoundRobinEnabled').checked.toString(),
+                    WeightByCapacity: document.getElementById('weightByCapacity').checked.toString()
                 }
-                window.location.reload();
-            })
-            .catch(error => {
-                alert('Error adding backend: ' + error.message);
-            });
-        }
+            };
 
-        function deleteBackend(url) {
-            if (!confirm('Are you sure you want to delete this backend?')) {
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(currentConfig)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Load balancing configuration saved successfully');
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert('Error saving load balancing configuration: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving load balancing configuration');
+            }
+        });
+
+        // Handle metrics form submission
+        document.getElementById('metricsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get the current full configuration
+            const currentConfig = JSON.parse('{{ .JSON }}');
+            
+            // Update only the metrics section
+            currentConfig.Metrics = {
+                Enabled: document.getElementById('metricsEnabled').checked.toString(),
+                Port: document.getElementById('metricsPort').value,
+                Path: document.getElementById('metricsPath').value,
+                Auth: {
+                    Enabled: document.getElementById('metricsAuthEnabled').checked,
+                    BearerToken: document.getElementById('metricsBearerToken').value
+                },
+                CollectInterval: document.getElementById('collectInterval').value,
+                RetentionPeriod: document.getElementById('retentionPeriod').value,
+                Labels: currentConfig.Metrics.Labels || {},
+                Prometheus: {
+                    Enabled: document.getElementById('prometheusEnabled').checked.toString(),
+                    Namespace: document.getElementById('prometheusNamespace').value,
+                    Subsystem: document.getElementById('prometheusSubsystem').value,
+                    Path: document.getElementById('prometheusPath').value
+                }
+            };
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(currentConfig)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Metrics configuration saved successfully');
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert('Error saving metrics configuration: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving metrics configuration');
+            }
+        });
+
+        // Handle logging form submission
+        document.getElementById('loggingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get the current full configuration
+            const currentConfig = JSON.parse('{{ .JSON }}');
+            
+            // Update only the logging section
+            currentConfig.Logging = {
+                Enabled: document.getElementById('loggingEnabled').checked.toString(),
+                Level: document.getElementById('loggingLevel').value,
+                File: document.getElementById('loggingFile').value,
+                MaxSize: document.getElementById('loggingMaxSize').value,
+                MaxBackups: document.getElementById('loggingMaxBackups').value,
+                MaxAge: document.getElementById('loggingMaxAge').value,
+                Compress: document.getElementById('loggingCompress').checked.toString(),
+                Format: document.getElementById('loggingFormat').value
+            };
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(currentConfig)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Logging configuration saved successfully');
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert('Error saving logging configuration: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving logging configuration');
+            }
+        });
+
+        // Handle backend form submission
+        document.getElementById('backendForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                url: document.getElementById('backendUrl').value,
+                weight: document.getElementById('backendWeight').value,
+                max_connections: document.getElementById('backendMaxConnections').value
+            };
+
+            try {
+                const response = await fetch('/api/backends', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Backend added successfully');
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert('Error adding backend: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding backend');
+            }
+        });
+
+        // Handle backend deletion
+        async function deleteBackend(url) {
+            if (!confirm('Are you sure you want to remove this backend?')) {
                 return;
             }
 
-            fetch(`/api/backends?url=${encodeURIComponent(url)}`, {
-                method: 'DELETE',
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete backend');
+            try {
+                const response = await fetch(`/api/backends?url=${encodeURIComponent(url)}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    alert('Backend removed successfully');
+                    window.location.reload();
+                } else {
+                    const error = await response.text();
+                    alert('Error removing backend: ' + error);
                 }
-                window.location.reload();
-            })
-            .catch(error => {
-                alert('Error deleting backend: ' + error.message);
-            });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error removing backend');
+            }
         }
+
+        // Load initial configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    
+                    // Populate server form
+                    if (config.Server) {
+                        document.getElementById('serverPort').value = config.Server.Port;
+                        document.getElementById('serverWorkerCount').value = config.Server.WorkerCount;
+                        document.getElementById('serverTLSEnabled').checked = config.Server.TLS.Enabled === 'true';
+                        document.getElementById('serverTLSCertFile').value = config.Server.TLS.CertFile;
+                        document.getElementById('serverTLSKeyFile').value = config.Server.TLS.KeyFile;
+                        document.getElementById('serverTLSMinVersion').value = config.Server.TLS.MinVersion;
+                        document.getElementById('serverTLSCipherSuites').value = Array.isArray(config.Server.TLS.CipherSuites) 
+                            ? config.Server.TLS.CipherSuites.join(', ')
+                            : config.Server.TLS.CipherSuites;
+                        document.getElementById('serverTLSClientAuth').value = config.Server.TLS.ClientAuth;
+                    }
+
+                    // Populate load balancing form
+                    if (config.Server && config.Server.LoadBalancing) {
+                        document.getElementById('lbAlgorithm').value = config.Server.LoadBalancing.Strategy;
+                        document.getElementById('ipHashEnabled').checked = config.Server.LoadBalancing.IPHash.Enabled === 'true';
+                        document.getElementById('ipHashHeader').value = config.Server.LoadBalancing.IPHash.Header;
+                        document.getElementById('ipHashFallbackHeader').value = config.Server.LoadBalancing.IPHash.FallbackHeader;
+                        document.getElementById('weightedRoundRobinEnabled').checked = config.Server.LoadBalancing.WeightedRoundRobin.Enabled === 'true';
+                        document.getElementById('weightByCapacity').checked = config.Server.LoadBalancing.WeightedRoundRobin.WeightByCapacity === 'true';
+                    }
+
+                    // Populate metrics form
+                    if (config.Metrics) {
+                        document.getElementById('metricsEnabled').checked = config.Metrics.Enabled === 'true';
+                        document.getElementById('metricsPort').value = config.Metrics.Port;
+                        document.getElementById('metricsPath').value = config.Metrics.Path;
+                        document.getElementById('metricsAuthEnabled').checked = config.Metrics.Auth.Enabled;
+                        document.getElementById('metricsBearerToken').value = config.Metrics.Auth.BearerToken;
+                        document.getElementById('collectInterval').value = config.Metrics.CollectInterval;
+                        document.getElementById('retentionPeriod').value = config.Metrics.RetentionPeriod;
+                        document.getElementById('prometheusEnabled').checked = config.Metrics.Prometheus.Enabled === 'true';
+                        document.getElementById('prometheusNamespace').value = config.Metrics.Prometheus.Namespace;
+                        document.getElementById('prometheusSubsystem').value = config.Metrics.Prometheus.Subsystem;
+                        document.getElementById('prometheusPath').value = config.Metrics.Prometheus.Path;
+
+                        // Populate labels
+                        const labelsContainer = document.getElementById('metricsLabels');
+                        labelsContainer.innerHTML = '';
+                        if (config.Metrics.Labels) {
+                            Object.entries(config.Metrics.Labels).forEach(([key, value]) => {
+                                addLabelInput(key, value);
+                            });
+                        }
+                    }
+
+                    // Populate logging form
+                    if (config.Logging) {
+                        document.getElementById('loggingEnabled').checked = config.Logging.Enabled === 'true';
+                        document.getElementById('loggingLevel').value = config.Logging.Level;
+                        document.getElementById('loggingFile').value = config.Logging.File;
+                        document.getElementById('loggingMaxSize').value = config.Logging.MaxSize;
+                        document.getElementById('loggingMaxBackups').value = config.Logging.MaxBackups;
+                        document.getElementById('loggingMaxAge').value = config.Logging.MaxAge;
+                        document.getElementById('loggingCompress').checked = config.Logging.Compress === 'true';
+                        document.getElementById('loggingFormat').value = config.Logging.Format;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+            }
+        }
+
+        // Helper function to add label inputs
+        function addLabelInput(key, value) {
+            const labelsContainer = document.getElementById('metricsLabels');
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'flex gap-2';
+            
+            const keyInput = document.createElement('input');
+            keyInput.type = 'text';
+            keyInput.value = key;
+            keyInput.className = 'input-field flex-1';
+            keyInput.setAttribute('data-key', key);
+            
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.value = value;
+            valueInput.className = 'input-field flex-1 label-input';
+            valueInput.setAttribute('data-key', key);
+            
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'button button-danger';
+            removeButton.innerHTML = '<span class="material-icons">delete</span>';
+            removeButton.onclick = function() {
+                labelDiv.remove();
+            };
+            
+            keyInput.addEventListener('change', function() {
+                valueInput.setAttribute('data-key', this.value);
+            });
+            
+            labelDiv.appendChild(keyInput);
+            labelDiv.appendChild(valueInput);
+            labelDiv.appendChild(removeButton);
+            labelsContainer.appendChild(labelDiv);
+        }
+
+        // Load configuration when page loads
+        document.addEventListener('DOMContentLoaded', loadConfig);
     </script>
 </body>
 </html> 

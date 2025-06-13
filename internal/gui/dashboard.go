@@ -1,14 +1,15 @@
 package gui
 
 import (
-	"crypto/rand"
 	"embed"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -118,9 +119,6 @@ type Config struct {
 	} `yaml:"dashboard"`
 }
 
-//go:embed templates
-var templates embed.FS
-
 // Dashboard represents the dashboard instance
 type Dashboard struct {
 	config      *Config
@@ -129,28 +127,11 @@ type Dashboard struct {
 	template    *template.Template
 	configPath  string
 	configMutex sync.RWMutex
-}
-
-// LoadConfig loads the configuration from a YAML file
-func LoadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %v", err)
-	}
-
-	var config Config
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("failed to parse config file: %v", err)
-	}
-
-	// Debug log the loaded config
-	log.Printf("Loaded configuration from %s: %+v", path, config)
-
-	return &config, nil
+	guiFiles    embed.FS
 }
 
 // NewDashboard creates a new dashboard instance
-func NewDashboard(config *Config) *Dashboard {
+func NewDashboard(config *Config, guiFiles embed.FS) *Dashboard {
 	// Initialize sessions map
 	sessions := make(map[string]time.Time)
 
@@ -159,43 +140,22 @@ func NewDashboard(config *Config) *Dashboard {
 		"join": strings.Join,
 	}
 
-	// Parse templates
-	tmpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
+	// Parse templates from embedded files
+	tmpl := template.Must(template.New("").Funcs(funcMap).ParseFS(guiFiles,
 		"gui/templates/login.html",
 		"gui/templates/index.html",
 	))
 
-	// Create dashboard with config
+	// Create dashboard with config and embedded files
 	dashboard := &Dashboard{
 		config:     config,
 		sessions:   sessions,
 		template:   tmpl,
 		configPath: "config.yml",
+		guiFiles:   guiFiles,
 	}
-
-	// Debug log the loaded config
-	log.Printf("Loaded configuration: %+v", config)
 
 	return dashboard
-}
-
-// saveConfig saves the configuration to a YAML file
-func (d *Dashboard) saveConfig(config *Config) error {
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return fmt.Errorf("error marshaling config: %v", err)
-	}
-
-	if err := os.WriteFile(d.configPath, data, 0644); err != nil {
-		return fmt.Errorf("error writing config file: %v", err)
-	}
-
-	return nil
-}
-
-// getBoolValue converts a string to a boolean value
-func getBoolValue(s string) bool {
-	return s == "true" || s == "1" || s == "yes" || s == "y"
 }
 
 // isAuthenticated checks if the user is authenticated
@@ -237,13 +197,9 @@ func (d *Dashboard) isAuthenticated(r *http.Request) bool {
 	return true
 }
 
-// generateSessionID generates a random session ID
-func (d *Dashboard) generateSessionID() (string, error) {
-	b := make([]byte, 32)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(b), nil
+// getBoolValue converts a string to a boolean value
+func getBoolValue(s string) bool {
+	return s == "true" || s == "1" || s == "yes" || s == "y"
 }
 
 // handleLogin handles login requests
@@ -280,7 +236,7 @@ func (d *Dashboard) handleLogin(w http.ResponseWriter, r *http.Request) {
 		d.sessions[token] = time.Now().Add(24 * time.Hour) // 24 hour session
 		d.sessionMu.Unlock()
 
-		// Set cookie with more permissive settings for local development
+		// Set cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
 			Value:    token,
@@ -307,10 +263,7 @@ func (d *Dashboard) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 // handleLogout handles logout requests
 func (d *Dashboard) handleLogout(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Handling logout request from %s", r.RemoteAddr)
-
 	if r.Method != http.MethodPost {
-		log.Printf("Invalid method for logout: %s", r.Method)
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -320,47 +273,30 @@ func (d *Dashboard) handleLogout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("No session cookie found: %v", err)
 	} else {
-		log.Printf("Found session cookie, clearing session")
 		// Clear the session from our map
 		d.sessionMu.Lock()
 		delete(d.sessions, cookie.Value)
 		d.sessionMu.Unlock()
 
-		// Clear the cookie by setting it to expire immediately
-		newCookie := &http.Cookie{
+		// Clear the cookie
+		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
 			Value:    "",
 			Path:     "/",
 			Expires:  time.Unix(0, 0),
 			HttpOnly: true,
-			Secure:   false, // Allow non-HTTPS for local development
+			Secure:   false,
 			SameSite: http.SameSiteLaxMode,
-			MaxAge:   -1, // Immediately expire
-		}
-		http.SetCookie(w, newCookie)
-		log.Printf("Session cookie cleared")
-	}
-
-	// Set CORS headers to allow the request
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	// Handle preflight request
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
+			MaxAge:   -1,
+		})
 	}
 
 	// Return success response
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "success",
 		"message": "Logged out successfully",
 	})
-	log.Printf("Logout response sent")
 }
 
 // handleConfig handles configuration requests
@@ -370,19 +306,11 @@ func (d *Dashboard) handleConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Add cache control headers
-	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Expires", "0")
-
 	if r.Method == http.MethodGet {
 		// Return current config
 		d.configMutex.RLock()
 		config := d.config
 		d.configMutex.RUnlock()
-
-		// Debug log the config being sent
-		log.Printf("Sending configuration to frontend: %+v", config)
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(config); err != nil {
@@ -401,16 +329,6 @@ func (d *Dashboard) handleConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Debug log the new config
-	log.Printf("Received new configuration: %+v", newConfig)
-
-	// Validate the configuration
-	if err := validateConfig(&newConfig); err != nil {
-		log.Printf("Invalid configuration: %v", err)
-		http.Error(w, fmt.Sprintf("Invalid configuration: %v", err), http.StatusBadRequest)
-		return
-	}
-
 	// Update in-memory config
 	d.configMutex.Lock()
 	d.config = &newConfig
@@ -423,25 +341,6 @@ func (d *Dashboard) handleConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get session cookie to refresh it
-	if cookie, err := r.Cookie("session"); err == nil {
-		// Extend session expiry
-		d.sessionMu.Lock()
-		d.sessions[cookie.Value] = time.Now().Add(24 * time.Hour)
-		d.sessionMu.Unlock()
-
-		// Refresh the cookie
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session",
-			Value:    cookie.Value,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   false,                // Allow non-HTTPS for local development
-			SameSite: http.SameSiteLaxMode, // More permissive SameSite policy
-			MaxAge:   86400,                // 24 hours
-		})
-	}
-
 	// Return success response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -450,38 +349,13 @@ func (d *Dashboard) handleConfig(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// validateConfig validates the configuration
-func validateConfig(config *Config) error {
-	// Validate server port
-	if config.Server.Port == "" {
-		return fmt.Errorf("server port is required")
-	}
-
-	// Validate worker count
-	if config.Server.WorkerCount == "" {
-		return fmt.Errorf("worker count is required")
-	}
-
-	// Validate backends
-	if len(config.Backends) == 0 {
-		return fmt.Errorf("at least one backend is required")
-	}
-
-	// Validate metrics if enabled
-	if config.Metrics.Enabled == "true" {
-		if config.Metrics.Port == "" {
-			return fmt.Errorf("metrics port is required when metrics are enabled")
-		}
-		if config.Metrics.Path == "" {
-			return fmt.Errorf("metrics path is required when metrics are enabled")
-		}
-	}
-
-	return nil
-}
-
 // handleBackends handles backend requests
 func (d *Dashboard) handleBackends(w http.ResponseWriter, r *http.Request) {
+	if !d.isAuthenticated(r) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		w.Header().Set("Content-Type", "application/json")
@@ -550,6 +424,11 @@ func (d *Dashboard) handleBackends(w http.ResponseWriter, r *http.Request) {
 
 // handleMetrics handles metrics requests
 func (d *Dashboard) handleMetrics(w http.ResponseWriter, r *http.Request) {
+	if !d.isAuthenticated(r) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -621,6 +500,29 @@ func (d *Dashboard) handleVerify(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "valid"})
 }
 
+// generateSessionID generates a random session ID
+func (d *Dashboard) generateSessionID() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+// saveConfig saves the configuration to a YAML file
+func (d *Dashboard) saveConfig(config *Config) error {
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return fmt.Errorf("error marshaling config: %v", err)
+	}
+
+	if err := os.WriteFile(d.configPath, data, 0644); err != nil {
+		return fmt.Errorf("error writing config file: %v", err)
+	}
+
+	return nil
+}
+
 // handleLoginPage serves the login page
 func (d *Dashboard) handleLoginPage(w http.ResponseWriter, r *http.Request) {
 	if d.isAuthenticated(r) {
@@ -628,16 +530,8 @@ func (d *Dashboard) handleLoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load login template
-	tmpl, err := template.ParseFiles("gui/templates/login.html")
-	if err != nil {
-		log.Printf("Error loading login template: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	// Execute template
-	if err := tmpl.Execute(w, nil); err != nil {
+	// Execute template from embedded files
+	if err := d.template.ExecuteTemplate(w, "login.html", nil); err != nil {
 		log.Printf("Error executing login template: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -694,9 +588,12 @@ func (d *Dashboard) Start() error {
 	// Set up routes
 	mux := http.NewServeMux()
 
-	// Static files
-	fs := http.FileServer(http.Dir("gui/static"))
-	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+	// Serve static files from embedded filesystem
+	staticFS, err := fs.Sub(d.guiFiles, "gui/static")
+	if err != nil {
+		return fmt.Errorf("failed to create static filesystem: %v", err)
+	}
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
 	// API routes
 	mux.HandleFunc("/api/login", d.handleLogin)
@@ -722,4 +619,19 @@ func (d *Dashboard) Start() error {
 	addr := fmt.Sprintf(":%d", d.config.Dashboard.Port)
 	log.Printf("Starting dashboard server on %s", addr)
 	return http.ListenAndServe(addr, mux)
+}
+
+// LoadConfig loads the configuration from a YAML file
+func LoadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %v", err)
+	}
+
+	var config Config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %v", err)
+	}
+
+	return &config, nil
 }

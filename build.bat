@@ -1,1 +1,1 @@
-go build -a -gcflags=all="-l -B" -ldflags="-w -s" -o quantumflow.exe .
+go build -a -gcflags=all="-l -B" -ldflags="-w -s" -o quantumflow.exe main.go
